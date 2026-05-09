@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agente IA — by: Anthony De La Cruz Tigrero</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:       #0d0f14;
+      --surface:  #161920;
+      --border:   #252830;
+      --border2:  #2e323d;
+      --text:     #e8eaf0;
+      --muted:    #6b7080;
+      --in-color: #38bdf8;
+      --out-color:#4ade80;
+      --accent:   #818cf8;
+      --accent2:  #c084fc;
+      --mono:     'IBM Plex Mono', monospace;
+      --sans:     'Syne', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      padding: 2.5rem 1.5rem;
+    }
+
+    /* ── HEADER ── */
+    header {
+      max-width: 860px;
+      margin: 0 auto 2.5rem;
+      display: flex;
+      align-items: baseline;
+      gap: 1rem;
+    }
+    header h1 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -.02em;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    header span {
+      font-family: var(--mono);
+      font-size: .75rem;
+      color: var(--muted);
+      border: 1px solid var(--border2);
+      padding: .2rem .55rem;
+      border-radius: 4px;
+    }
+
+    /* ── INPUT AREA ── */
+    .input-wrap {
+      max-width: 860px;
+      margin: 0 auto 2rem;
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 14px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: .9rem;
+    }
+    .input-wrap label {
+      font-size: .78rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+    }
+    textarea {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      resize: none;
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 1rem;
+      line-height: 1.6;
+      min-height: 80px;
+    }
+    textarea::placeholder { color: var(--muted); }
+    .input-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border);
+      padding-top: .9rem;
+    }
+    .hint { font-size: .78rem; color: var(--muted); font-family: var(--mono); }
+    button {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      border: none;
+      padding: .6rem 1.4rem;
+      border-radius: 8px;
+      font-family: var(--sans);
+      font-size: .9rem;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: .02em;
+      transition: opacity .2s;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    button:hover { opacity: .88; }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+
+    /* ── SPINNER ── */
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── RESULTADO ── */
+    #resultado { max-width: 860px; margin: 0 auto; display: none; }
+
+    /* ── RESUMEN CARD ── */
+    .card-resumen {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 14px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .card-resumen p {
+      color: #b0b4c0;
+      font-size: .95rem;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+    .expresiones { display: flex; flex-direction: column; gap: .5rem; }
+    .expr-row {
+      display: flex;
+      align-items: baseline;
+      gap: .75rem;
+      flex-wrap: wrap;
+    }
+    .expr-nombre {
+      font-family: var(--mono);
+      font-size: .85rem;
+      color: var(--out-color);
+      font-weight: 600;
+      min-width: 32px;
+    }
+    .expr-formula {
+      font-family: var(--mono);
+      font-size: .9rem;
+      background: #1a1f2e;
+      color: var(--accent);
+      padding: .25rem .7rem;
+      border-radius: 6px;
+      border: 1px solid #2a3050;
+    }
+    .expr-desc {
+      font-size: .8rem;
+      color: var(--muted);
+    }
+
+    /* ── VARS ROW ── */
+    .vars-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+    .var-card {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 14px;
+      padding: 1rem 1.25rem;
+    }
+    .var-card h3 {
+      font-size: .72rem;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin-bottom: .75rem;
+    }
+    .var-card.entradas h3 { color: var(--in-color); }
+    .var-card.salidas  h3 { color: var(--out-color); }
+    .badges { display: flex; flex-wrap: wrap; gap: .45rem; }
+    .badge {
+      font-family: var(--mono);
+      font-size: .85rem;
+      font-weight: 600;
+      padding: .25rem .7rem;
+      border-radius: 6px;
+    }
+    .badge-in  { background: #0c2a3a; color: var(--in-color);  border: 1px solid #1a4a5e; }
+    .badge-out { background: #0c2a1a; color: var(--out-color); border: 1px solid #1a4a2a; }
+
+    /* ── TABLA ── */
+    .tabla-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .tabla-header {
+      padding: .9rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .tabla-header span {
+      font-size: .78rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+    }
+    .filas-count {
+      font-family: var(--mono);
+      font-size: .75rem;
+      color: var(--muted);
+      background: var(--bg);
+      padding: .2rem .55rem;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+    }
+    .tabla-scroll { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--mono);
+    }
+    thead tr { background: #12151d; }
+    th {
+      padding: .7rem 1.1rem;
+      font-size: .78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      text-align: center;
+      white-space: nowrap;
+    }
+    th.col-in  { color: var(--in-color);  border-bottom: 2px solid var(--in-color); }
+    th.col-out { color: var(--out-color); border-bottom: 2px solid var(--out-color); }
+
+    .sep-col { width: 1px; background: var(--border2); padding: 0; }
+
+    tbody tr { border-bottom: 1px solid var(--border); transition: background .12s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #1a1f2e; }
+    td {
+      padding: .6rem 1.1rem;
+      text-align: center;
+      font-size: .95rem;
+    }
+    td.val-1-in  { color: var(--in-color); }
+    td.val-0-in  { color: #334455; }
+    td.val-1-out { color: var(--out-color); font-weight: 600; }
+    td.val-0-out { color: #2a3a2a; font-weight: 600; }
+    td.col-out   { background: rgba(74,222,128,.03); }
+    td.sep-col   { background: var(--border2); padding: 0; width: 1px; }
+
+    /* ── ERROR ── */
+    .error-box {
+      background: #1a0a0a;
+      border: 1px solid #4a1a1a;
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      color: #f87171;
+      font-size: .9rem;
+      font-family: var(--mono);
+    }
+
+    /* ── ANIMACIÓN ENTRADA ── */
+    .fade-in {
+      animation: fadeIn .35s ease both;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 540px) {
+      .vars-row { grid-template-columns: 1fr; }
+      header h1 { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Agente IA</h1>
+    <span>by: Anthony De La Cruz Tigrero</span>
+  </header>
+
+  <div class="input-wrap">
+    <label>Describe tu problema</label>
+    <textarea id="txt" rows="3"
+      placeholder="Ej: La alarma se activa si hay movimiento Y la puerta está abierta. La luz de emergencia se enciende si hay movimiento O si la puerta está abierta y no hay luz."></textarea>
+    <div class="input-footer">
+      <span class="hint">Enter para enviar · Shift+Enter nueva línea</span>
+      <button id="btn" onclick="enviar()">
+        <span>Analizar</span>
+      </button>
+    </div>
+  </div>
+
+  <div id="resultado"></div>
+
+  <script>
+    const txt = document.getElementById('txt');
+    const btn = document.getElementById('btn');
+    const res = document.getElementById('resultado');
+
+    txt.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviar(); }
+    });
+
+    async function enviar() {
+      const mensaje = txt.value.trim();
+      if (!mensaje) return;
+
+      btn.disabled = true;
+      btn.innerHTML = '<div class="spinner"></div><span>Analizando...</span>';
+      res.style.display = 'none';
+
+      try {
+        const r = await fetch('/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: mensaje })
+        });
+
+        if (!r.ok) throw new Error(`Error del servidor: ${r.status}`);
+
+        const data = await r.json();
+
+        if (data.error) {
+          res.innerHTML = `<div class="error-box fade-in">⚠ ${data.error}</div>`;
+        } else {
+          res.innerHTML = renderizar(data);
+        }
+        res.style.display = 'block';
+
+      } catch (e) {
+        res.innerHTML = `<div class="error-box fade-in">⚠ Error de conexión: ${e.message}</div>`;
+        res.style.display = 'block';
+      }
+
+      btn.disabled = false;
+      btn.innerHTML = '<span>Analizar</span>';
+    }
+
+    function renderizar(d) {
+      // --- Resumen ---
+        const expresiones = d.salidas.map(s => `
+        <div class="expr-row">
+            <span class="expr-nombre">${s.nombre}</span>
+            <div style="display:flex;flex-direction:column;gap:.35rem">
+            <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap">
+                <span style="font-size:.72rem;color:var(--muted);font-family:var(--mono);min-width:60px">inferida</span>
+                <span class="expr-formula">${s.expresion_display}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap">
+                <span style="font-size:.72rem;color:var(--muted);font-family:var(--mono);min-width:60px">canónica</span>
+                <span class="expr-formula" style="color:var(--out-color);border-color:#1a4a2a">${s.expresion_canonica}</span>
+            </div>
+            <span class="expr-desc">${s.descripcion}</span>
+            </div>
+        </div>
+    `).join('');
+
+      const htmlResumen = `
+        <div class="card-resumen fade-in">
+          <p>${d.resumen}</p>
+          <div class="expresiones">${expresiones}</div>
+        </div>
+      `;
+
+      // --- Variables ---
+      const badgesIn  = d.entradas.map(v => `<span class="badge badge-in">${v}</span>`).join('');
+      const nombresS  = d.salidas.map(s => s.nombre);
+      const badgesOut = nombresS.map(n => `<span class="badge badge-out">${n}</span>`).join('');
+
+      const htmlVars = `
+        <div class="vars-row fade-in">
+          <div class="var-card entradas">
+            <h3>Entradas (${d.entradas.length})</h3>
+            <div class="badges">${badgesIn}</div>
+          </div>
+          <div class="var-card salidas">
+            <h3>Salidas (${nombresS.length})</h3>
+            <div class="badges">${badgesOut}</div>
+          </div>
+        </div>
+      `;
+
+      // --- Tabla ---
+      const thIn  = d.entradas.map(v => `<th class="col-in">${v}</th>`).join('');
+      const thOut = nombresS.map(n => `<th class="col-out">${n}</th>`).join('');
+
+      const filas = d.tabla.map(fila => {
+        const tdIn  = d.entradas.map(v =>
+          `<td class="${fila[v] === 1 ? 'val-1-in' : 'val-0-in'}">${fila[v]}</td>`
+        ).join('');
+        const tdOut = nombresS.map(n =>
+          `<td class="col-out ${fila[n] === 1 ? 'val-1-out' : 'val-0-out'}">${fila[n] === -1 ? '?' : fila[n]}</td>`
+        ).join('');
+        return `<tr>${tdIn}<td class="sep-col"></td>${tdOut}</tr>`;
+      }).join('');
+
+      const htmlTabla = `
+        <div class="tabla-wrap fade-in">
+          <div class="tabla-header">
+            <span>Tabla de verdad</span>
+            <span class="filas-count">${d.tabla.length} filas · ${d.entradas.length + nombresS.length} columnas</span>
+          </div>
+          <div class="tabla-scroll">
+            <table>
+              <thead>
+                <tr>${thIn}<th class="sep-col"></th>${thOut}</tr>
+              </thead>
+              <tbody>${filas}</tbody>
+            </table>
+          </div>
+        </div>
+      `;
+
+      return htmlResumen + htmlVars + htmlTabla;
+    }
+  </script>
+</body>
+</html>

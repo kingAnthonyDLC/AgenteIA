@@ -3,12 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agente IA — by: Anthony De La Cruz Tigrero</title>
+  <title>AGENTE IA — by: kingAnthony</title>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg:       #0d0f14;
       --surface:  #161920;
+      --surface2: #1c202b;
       --border:   #252830;
       --border2:  #2e323d;
       --text:     #e8eaf0;
@@ -28,12 +29,12 @@
       color: var(--text);
       font-family: var(--sans);
       min-height: 100vh;
-      padding: 2.5rem 1.5rem;
+      padding: 2.5rem 1.5rem 4rem;
     }
 
     /* ── HEADER ── */
     header {
-      max-width: 860px;
+      max-width: 900px;
       margin: 0 auto 2.5rem;
       display: flex;
       align-items: baseline;
@@ -57,23 +58,22 @@
       border-radius: 4px;
     }
 
-    /* ── INPUT AREA ── */
+    /* ── INPUT ── */
     .input-wrap {
-      max-width: 860px;
+      max-width: 900px;
       margin: 0 auto 2rem;
       background: var(--surface);
       border: 1px solid var(--border2);
       border-radius: 14px;
       padding: 1.25rem;
-      display: flex;
-      flex-direction: column;
-      gap: .9rem;
     }
     .input-wrap label {
+      display: block;
       font-size: .78rem;
       text-transform: uppercase;
       letter-spacing: .08em;
       color: var(--muted);
+      margin-bottom: .6rem;
     }
     textarea {
       width: 100%;
@@ -85,7 +85,7 @@
       font-family: var(--sans);
       font-size: 1rem;
       line-height: 1.6;
-      min-height: 80px;
+      min-height: 72px;
     }
     textarea::placeholder { color: var(--muted); }
     .input-footer {
@@ -94,6 +94,7 @@
       align-items: center;
       border-top: 1px solid var(--border);
       padding-top: .9rem;
+      margin-top: .75rem;
     }
     .hint { font-size: .78rem; color: var(--muted); font-family: var(--mono); }
     button {
@@ -106,16 +107,14 @@
       font-size: .9rem;
       font-weight: 700;
       cursor: pointer;
-      letter-spacing: .02em;
-      transition: opacity .2s;
       display: flex;
       align-items: center;
       gap: .5rem;
+      transition: opacity .2s;
     }
-    button:hover { opacity: .88; }
-    button:disabled { opacity: .45; cursor: not-allowed; }
+    button:hover { opacity: .85; }
+    button:disabled { opacity: .4; cursor: not-allowed; }
 
-    /* ── SPINNER ── */
     .spinner {
       width: 14px; height: 14px;
       border: 2px solid rgba(255,255,255,.3);
@@ -126,26 +125,42 @@
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ── RESULTADO ── */
-    #resultado { max-width: 860px; margin: 0 auto; display: none; }
+    #resultado { max-width: 900px; margin: 0 auto; display: none; }
 
-    /* ── RESUMEN CARD ── */
-    .card-resumen {
+    /* ── SECCIÓN GENÉRICA ── */
+    .seccion {
       background: var(--surface);
       border: 1px solid var(--border2);
       border-radius: 14px;
-      padding: 1.25rem 1.5rem;
       margin-bottom: 1.25rem;
+      overflow: hidden;
     }
-    .card-resumen p {
+    .seccion-header {
+      padding: .85rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .seccion-header > span:first-child {
+      font-size: .75rem;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      color: var(--muted);
+    }
+    .seccion-body { padding: 1.25rem; }
+
+    /* ── RESUMEN ── */
+    .resumen-texto {
       color: #b0b4c0;
       font-size: .95rem;
-      line-height: 1.6;
-      margin-bottom: 1rem;
+      line-height: 1.65;
+      margin-bottom: 1.1rem;
     }
-    .expresiones { display: flex; flex-direction: column; gap: .5rem; }
-    .expr-row {
+    .expr-bloque { display: flex; flex-direction: column; gap: .75rem; }
+    .expr-fila {
       display: flex;
-      align-items: baseline;
+      align-items: flex-start;
       gap: .75rem;
       flex-wrap: wrap;
     }
@@ -154,24 +169,37 @@
       font-size: .85rem;
       color: var(--out-color);
       font-weight: 600;
-      min-width: 32px;
+      min-width: 36px;
+      padding-top: .15rem;
     }
-    .expr-formula {
+    .expr-detalles { display: flex; flex-direction: column; gap: .35rem; }
+    .expr-linea {
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      flex-wrap: wrap;
+    }
+    .etiqueta {
       font-family: var(--mono);
-      font-size: .9rem;
-      background: #1a1f2e;
-      color: var(--accent);
-      padding: .25rem .7rem;
-      border-radius: 6px;
-      border: 1px solid #2a3050;
-    }
-    .expr-desc {
-      font-size: .8rem;
+      font-size: .68rem;
       color: var(--muted);
+      min-width: 68px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
     }
+    .formula {
+      font-family: var(--mono);
+      font-size: .88rem;
+      padding: .22rem .65rem;
+      border-radius: 6px;
+    }
+    .formula-inferida { background: #1a1f2e; color: var(--accent);   border: 1px solid #2a3050; }
+    .formula-canonica { background: #1a1a2e; color: #a78bfa;         border: 1px solid #3a2a60; }
+    .formula-simple   { background: #0c2a1a; color: var(--out-color); border: 1px solid #1a4a2a; }
+    .expr-desc { font-size: .78rem; color: var(--muted); margin-top: .1rem; }
 
-    /* ── VARS ROW ── */
-    .vars-row {
+    /* ── VARIABLES ── */
+    .vars-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 1rem;
@@ -202,45 +230,13 @@
     .badge-in  { background: #0c2a3a; color: var(--in-color);  border: 1px solid #1a4a5e; }
     .badge-out { background: #0c2a1a; color: var(--out-color); border: 1px solid #1a4a2a; }
 
-    /* ── TABLA ── */
-    .tabla-wrap {
-      background: var(--surface);
-      border: 1px solid var(--border2);
-      border-radius: 14px;
-      overflow: hidden;
-    }
-    .tabla-header {
-      padding: .9rem 1.25rem;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .tabla-header span {
-      font-size: .78rem;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      color: var(--muted);
-    }
-    .filas-count {
-      font-family: var(--mono);
-      font-size: .75rem;
-      color: var(--muted);
-      background: var(--bg);
-      padding: .2rem .55rem;
-      border-radius: 4px;
-      border: 1px solid var(--border);
-    }
+    /* ── TABLA DE VERDAD ── */
     .tabla-scroll { overflow-x: auto; }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-family: var(--mono);
-    }
+    table { width: 100%; border-collapse: collapse; font-family: var(--mono); }
     thead tr { background: #12151d; }
     th {
-      padding: .7rem 1.1rem;
-      font-size: .78rem;
+      padding: .65rem 1rem;
+      font-size: .75rem;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: .06em;
@@ -249,23 +245,124 @@
     }
     th.col-in  { color: var(--in-color);  border-bottom: 2px solid var(--in-color); }
     th.col-out { color: var(--out-color); border-bottom: 2px solid var(--out-color); }
-
-    .sep-col { width: 1px; background: var(--border2); padding: 0; }
-
-    tbody tr { border-bottom: 1px solid var(--border); transition: background .12s; }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background .1s; }
     tbody tr:last-child { border-bottom: none; }
     tbody tr:hover { background: #1a1f2e; }
-    td {
-      padding: .6rem 1.1rem;
-      text-align: center;
-      font-size: .95rem;
-    }
+    td { padding: .55rem 1rem; text-align: center; font-size: .92rem; }
+    .sep-col { width: 2px; background: var(--border2); padding: 0; }
     td.val-1-in  { color: var(--in-color); }
     td.val-0-in  { color: #334455; }
     td.val-1-out { color: var(--out-color); font-weight: 600; }
     td.val-0-out { color: #2a3a2a; font-weight: 600; }
     td.col-out   { background: rgba(74,222,128,.03); }
-    td.sep-col   { background: var(--border2); padding: 0; width: 1px; }
+
+    /* ── KARNAUGH ── */
+    .karnaugh-wrap {
+      display: flex;
+      gap: 2.5rem;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+    .kmap-container { overflow-x: auto; }
+    .kmap-table {
+      border-collapse: separate;
+      border-spacing: 4px;
+      font-family: var(--mono);
+    }
+    .kmap-table th {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: .75rem;
+      padding: .3rem .5rem;
+      text-align: center;
+      border-bottom: none;
+      letter-spacing: .04em;
+    }
+    .kmap-cell {
+      width: 54px;
+      height: 54px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 8px;
+      border: 2px solid var(--border2);
+      background: var(--surface2);
+      color: #334455;
+      position: relative;
+      transition: all .2s;
+    }
+    .kmap-cell.val-1 { color: var(--text); background: #1a2030; }
+    .kmap-cell.resaltado { border-width: 2px; }
+    .kmap-corner { background: transparent !important; border: none !important; }
+
+    /* ── LEYENDA KARNAUGH ── */
+    .leyenda { display: flex; flex-direction: column; gap: .6rem; min-width: 170px; }
+    .leyenda h4 {
+      font-size: .72rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      margin-bottom: .15rem;
+    }
+    .leyenda-item { display: flex; align-items: flex-start; gap: .55rem; }
+    .leyenda-dot {
+      width: 12px; height: 12px;
+      border-radius: 3px;
+      flex-shrink: 0;
+      margin-top: .18rem;
+    }
+    .leyenda-texto { font-family: var(--mono); font-size: .84rem; color: var(--text); }
+    .leyenda-mints { font-size: .7rem; color: var(--muted); font-family: var(--mono); }
+
+    /* ── QUINE-McCLUSKEY ── */
+    .qm-paso { margin-bottom: 1.5rem; }
+    .qm-paso:last-child { margin-bottom: 0; }
+    .qm-titulo { font-size: .9rem; font-weight: 700; color: var(--accent); margin-bottom: .5rem; }
+    .qm-explicacion {
+      font-size: .82rem;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-bottom: .85rem;
+      padding-left: .85rem;
+      border-left: 2px solid var(--border2);
+    }
+    .qm-tabla { overflow-x: auto; margin-top: .5rem; }
+    .qm-tabla table { font-size: .82rem; }
+    .qm-tabla th { color: var(--accent); border-bottom: 1px solid var(--border2); font-size: .72rem; }
+    .qm-tabla td { color: #b0b4c0; border-bottom: 1px solid var(--border); padding: .45rem .85rem; }
+    .qm-tabla tr:last-child td { border-bottom: none; }
+    .qm-tabla td.termino { color: var(--out-color); font-weight: 600; }
+    .qm-tabla td.binario { color: var(--in-color); }
+
+    /* ── BADGE MÉTODO ── */
+    .metodo-badge {
+      font-family: var(--mono);
+      font-size: .7rem;
+      padding: .18rem .55rem;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    .metodo-kmap  { background: #1a2a1a; color: var(--out-color); border: 1px solid #2a4a2a; }
+    .metodo-quine { background: #1a1a2e; color: var(--accent);    border: 1px solid #2a2a4e; }
+
+    .salida-titulo {
+      font-size: .88rem;
+      font-weight: 700;
+      color: var(--out-color);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      font-family: var(--mono);
+    }
+    .salida-titulo::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border2);
+    }
 
     /* ── ERROR ── */
     .error-box {
@@ -274,167 +371,323 @@
       border-radius: 12px;
       padding: 1rem 1.25rem;
       color: #f87171;
-      font-size: .9rem;
       font-family: var(--mono);
+      font-size: .88rem;
     }
 
-    /* ── ANIMACIÓN ENTRADA ── */
-    .fade-in {
-      animation: fadeIn .35s ease both;
-    }
+    .fade-in { animation: fadeIn .35s ease both; }
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
+      from { opacity: 0; transform: translateY(8px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    @media (max-width: 540px) {
-      .vars-row { grid-template-columns: 1fr; }
-      header h1 { font-size: 1.3rem; }
+    @media (max-width: 600px) {
+      .vars-grid { grid-template-columns: 1fr; }
+      .karnaugh-wrap { flex-direction: column; }
     }
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>Agente IA</h1>
-    <span>by: Anthony De La Cruz Tigrero</span>
-  </header>
+<header>
+  <h1>Agente IA</h1>
+  <span>by: kingAnthony
+  </span>
+</header>
 
-  <div class="input-wrap">
-    <label>Describe tu problema</label>
-    <textarea id="txt" rows="3"
-      placeholder="Ej: La alarma se activa si hay movimiento Y la puerta está abierta. La luz de emergencia se enciende si hay movimiento O si la puerta está abierta y no hay luz."></textarea>
-    <div class="input-footer">
-      <span class="hint">Enter para enviar · Shift+Enter nueva línea</span>
-      <button id="btn" onclick="enviar()">
-        <span>Analizar</span>
-      </button>
-    </div>
+<div class="input-wrap">
+  <label>Describe tu problema lógico</label>
+  <textarea id="txt" placeholder="Ej: La alarma se activa si hay movimiento Y la puerta está abierta. La luz de emergencia se enciende si hay movimiento O si la puerta está abierta y no hay luz."></textarea>
+  <div class="input-footer">
+    <span class="hint">Enter para enviar · Shift+Enter nueva línea</span>
+    <button id="btn" onclick="enviar()"><span>Analizar</span></button>
   </div>
+</div>
 
-  <div id="resultado"></div>
+<div id="resultado"></div>
 
-  <script>
-    const txt = document.getElementById('txt');
-    const btn = document.getElementById('btn');
-    const res = document.getElementById('resultado');
+<script>
+const txt = document.getElementById('txt');
+const btn = document.getElementById('btn');
+const res = document.getElementById('resultado');
 
-    txt.addEventListener('keydown', e => {
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviar(); }
+txt.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviar(); }
+});
+
+async function enviar() {
+  const mensaje = txt.value.trim();
+  if (!mensaje) return;
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div><span>Analizando...</span>';
+  res.style.display = 'none';
+
+  try {
+    const r = await fetch('/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: mensaje })
     });
+    if (!r.ok) throw new Error(`Error del servidor: ${r.status}`);
+    const data = await r.json();
+    res.innerHTML = data.error
+      ? `<div class="error-box fade-in">⚠ ${data.error}</div>`
+      : renderizar(data);
+    res.style.display = 'block';
+  } catch(e) {
+    res.innerHTML = `<div class="error-box fade-in">⚠ Error de conexión: ${e.message}</div>`;
+    res.style.display = 'block';
+  }
 
-    async function enviar() {
-      const mensaje = txt.value.trim();
-      if (!mensaje) return;
+  btn.disabled = false;
+  btn.innerHTML = '<span>Analizar</span>';
+}
 
-      btn.disabled = true;
-      btn.innerHTML = '<div class="spinner"></div><span>Analizando...</span>';
-      res.style.display = 'none';
+/* ═══════════════════════════════════
+   RENDERIZADO PRINCIPAL
+═══════════════════════════════════ */
+function renderizar(d) {
+  return renderResumen(d)
+       + renderVars(d)
+       + renderTablaVerdad(d)
+       + renderSimplificacion(d);
+}
 
-      try {
-        const r = await fetch('/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: mensaje })
-        });
+/* ── RESUMEN ── */
+function renderResumen(d) {
+  const exprs = d.salidas.map(s => `
+    <div class="expr-fila">
+      <span class="expr-nombre">${s.nombre}</span>
+      <div class="expr-detalles">
+        <div class="expr-linea">
+          <span class="etiqueta">inferida</span>
+          <span class="formula formula-inferida">${s.expresion_display}</span>
+        </div>
+        <div class="expr-linea">
+          <span class="etiqueta">canónica</span>
+          <span class="formula formula-canonica">${s.expresion_canonica}</span>
+        </div>
+        <div class="expr-linea">
+          <span class="etiqueta">simplif.</span>
+          <span class="formula formula-simple">${s.expresion_simplificada}</span>
+        </div>
+        <div class="expr-desc">${s.descripcion}</div>
+      </div>
+    </div>`).join('');
 
-        if (!r.ok) throw new Error(`Error del servidor: ${r.status}`);
+  return `
+    <div class="seccion fade-in">
+      <div class="seccion-header"><span>Análisis lógico</span></div>
+      <div class="seccion-body">
+        <p class="resumen-texto">${d.resumen}</p>
+        <div class="expr-bloque">${exprs}</div>
+      </div>
+    </div>`;
+}
 
-        const data = await r.json();
+/* ── VARIABLES ── */
+function renderVars(d) {
+  const bIn  = d.entradas.map(v => `<span class="badge badge-in">${v}</span>`).join('');
+  const bOut = d.salidas.map(s => `<span class="badge badge-out">${s.nombre}</span>`).join('');
+  return `
+    <div class="vars-grid fade-in">
+      <div class="var-card entradas">
+        <h3>Entradas (${d.entradas.length})</h3>
+        <div class="badges">${bIn}</div>
+      </div>
+      <div class="var-card salidas">
+        <h3>Salidas (${d.salidas.length})</h3>
+        <div class="badges">${bOut}</div>
+      </div>
+    </div>`;
+}
 
-        if (data.error) {
-          res.innerHTML = `<div class="error-box fade-in">⚠ ${data.error}</div>`;
-        } else {
-          res.innerHTML = renderizar(data);
-        }
-        res.style.display = 'block';
+/* ── TABLA DE VERDAD ── */
+function renderTablaVerdad(d) {
+  const nombres = d.salidas.map(s => s.nombre);
+  const thIn  = d.entradas.map(v => `<th class="col-in">${v}</th>`).join('');
+  const thOut = nombres.map(n => `<th class="col-out">${n}</th>`).join('');
+  const filas = d.tabla.map(fila => {
+    const tdIn  = d.entradas.map(v =>
+      `<td class="${fila[v]===1?'val-1-in':'val-0-in'}">${fila[v]}</td>`).join('');
+    const tdOut = nombres.map(n =>
+      `<td class="col-out ${fila[n]===1?'val-1-out':'val-0-out'}">${fila[n]===-1?'?':fila[n]}</td>`).join('');
+    return `<tr>${tdIn}<td class="sep-col"></td>${tdOut}</tr>`;
+  }).join('');
 
-      } catch (e) {
-        res.innerHTML = `<div class="error-box fade-in">⚠ Error de conexión: ${e.message}</div>`;
-        res.style.display = 'block';
-      }
+  return `
+    <div class="seccion fade-in">
+      <div class="seccion-header">
+        <span>Tabla de verdad</span>
+        <span style="font-family:var(--mono);font-size:.72rem;color:var(--muted)">
+          ${d.tabla.length} filas · ${d.entradas.length + nombres.length} columnas
+        </span>
+      </div>
+      <div class="tabla-scroll">
+        <table>
+          <thead><tr>${thIn}<th class="sep-col"></th>${thOut}</tr></thead>
+          <tbody>${filas}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
 
-      btn.disabled = false;
-      btn.innerHTML = '<span>Analizar</span>';
+/* ── SIMPLIFICACIÓN ── */
+function renderSimplificacion(d) {
+  return d.salidas.map(s => {
+    const badge = s.metodo === 'karnaugh'
+      ? '<span class="metodo-badge metodo-kmap">Mapa de Karnaugh</span>'
+      : '<span class="metodo-badge metodo-quine">Quine-McCluskey</span>';
+
+    const contenido = s.metodo === 'karnaugh'
+      ? renderKarnaugh(s)
+      : renderQuine(s);
+
+    return `
+      <div class="seccion fade-in">
+        <div class="seccion-header">
+          <span>Simplificación — ${s.nombre}</span>
+          ${badge}
+        </div>
+        <div class="seccion-body">
+          <div class="salida-titulo">${s.nombre} = ${s.expresion_simplificada}</div>
+          ${contenido}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════════
+   KARNAUGH
+═══════════════════════════════════ */
+function renderKarnaugh(s) {
+  const k = s.karnaugh;
+  if (!k || !k.mapa || k.mapa.length === 0) {
+    const msg = s.expresion_simplificada === '0'
+      ? 'La salida siempre es 0 — no hay mintérminos.'
+      : 'La salida siempre es 1 — todos los mintérminos activos.';
+    return `<p style="color:var(--muted);font-size:.88rem">${msg}</p>`;
+  }
+
+  const mapa      = k.mapa;
+  const minterms  = new Set(k.minterms || []);
+  const grupos    = k.grupos || [];
+  const colLabels = k.col_labels || [];
+  const filLabels = k.fila_labels || [];
+
+  // Mapear celda → primer color de grupo
+  const celdaColor = {};
+  grupos.forEach(g => {
+    g.celdas.forEach(c => {
+      if (!celdaColor[c]) celdaColor[c] = g.color;
+    });
+  });
+
+  // Encabezado columnas
+  let thead = '<tr><th class="kmap-corner"> </th>';
+  colLabels.forEach(cl => { thead += `<th>${cl}</th>`; });
+  thead += '</tr>';
+
+  // Filas
+  let tbody = '';
+  mapa.forEach((fila, ri) => {
+    tbody += `<tr><th>${filLabels[ri] || ''}</th>`;
+    fila.forEach(idx => {
+      const val   = minterms.has(idx) ? 1 : 0;
+      const color = celdaColor[idx] || null;
+      const estilo = color
+        ? `border-color:${color}; box-shadow:0 0 0 2px ${color}33; background:${color}15;`
+        : '';
+      const cls = `kmap-cell${val===1?' val-1':''}${color?' resaltado':''}`;
+      tbody += `<td class="${cls}" style="${estilo}" title="m${idx}">${val}</td>`;
+    });
+    tbody += '</tr>';
+  });
+
+  // Leyenda
+  const items = grupos.map(g => `
+    <div class="leyenda-item">
+      <div class="leyenda-dot" style="background:${g.color}"></div>
+      <div>
+        <div class="leyenda-texto">${g.termino}</div>
+        <div class="leyenda-mints">m(${g.celdas.join(', ')})</div>
+      </div>
+    </div>`).join('');
+
+  return `
+    <div class="karnaugh-wrap">
+      <div class="kmap-container">
+        <table class="kmap-table">
+          <thead>${thead}</thead>
+          <tbody>${tbody}</tbody>
+        </table>
+      </div>
+      <div class="leyenda">
+        <h4>Grupos identificados</h4>
+        ${items || '<span style="color:var(--muted);font-size:.8rem">Sin grupos</span>'}
+      </div>
+    </div>`;
+}
+
+/* ═══════════════════════════════════
+   QUINE-McCLUSKEY
+═══════════════════════════════════ */
+function renderQuine(s) {
+  if (!s.quine_pasos || s.quine_pasos.length === 0)
+    return `<p style="color:var(--muted);font-size:.88rem">Sin pasos disponibles.</p>`;
+
+  const separador = '<hr style="border:none;border-top:1px solid var(--border);margin:1.5rem 0">';
+
+  return s.quine_pasos.map((paso, i) => {
+    let tablaHtml = '';
+
+    if (paso.tipo === 'tabla_minterms') {
+      const filas = paso.filas.map(f => `
+        <tr>
+          <td>${f.minterms.join(', ')}</td>
+          <td class="binario">${f.binario}</td>
+          <td style="text-align:center">${f.unos}</td>
+        </tr>`).join('');
+      tablaHtml = buildQmTable(paso.columnas, filas);
+
+    } else if (paso.tipo === 'tabla_combinaciones') {
+      const filas = paso.filas.map(f => `
+        <tr>
+          <td>${f.combinacion}</td>
+          <td class="binario">${f.resultado}</td>
+          <td class="termino">${f.termino}</td>
+        </tr>`).join('');
+      tablaHtml = buildQmTable(paso.columnas, filas);
+
+    } else if (paso.tipo === 'tabla_implicantes') {
+      const filas = paso.filas.map(f => `
+        <tr>
+          <td>${f.minterms.join(', ')}</td>
+          <td class="binario">${f.binario}</td>
+          <td class="termino">${f.termino}</td>
+        </tr>`).join('');
+      tablaHtml = buildQmTable(paso.columnas, filas);
     }
 
-    function renderizar(d) {
-      // --- Resumen ---
-        const expresiones = d.salidas.map(s => `
-        <div class="expr-row">
-            <span class="expr-nombre">${s.nombre}</span>
-            <div style="display:flex;flex-direction:column;gap:.35rem">
-            <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap">
-                <span style="font-size:.72rem;color:var(--muted);font-family:var(--mono);min-width:60px">inferida</span>
-                <span class="expr-formula">${s.expresion_display}</span>
-            </div>
-            <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap">
-                <span style="font-size:.72rem;color:var(--muted);font-family:var(--mono);min-width:60px">canónica</span>
-                <span class="expr-formula" style="color:var(--out-color);border-color:#1a4a2a">${s.expresion_canonica}</span>
-            </div>
-            <span class="expr-desc">${s.descripcion}</span>
-            </div>
-        </div>
-    `).join('');
+    return `
+      <div class="qm-paso">
+        <div class="qm-titulo">${paso.titulo}</div>
+        <div class="qm-explicacion">${paso.explicacion}</div>
+        ${tablaHtml}
+      </div>`;
+  }).join(separador);
+}
 
-      const htmlResumen = `
-        <div class="card-resumen fade-in">
-          <p>${d.resumen}</p>
-          <div class="expresiones">${expresiones}</div>
-        </div>
-      `;
-
-      // --- Variables ---
-      const badgesIn  = d.entradas.map(v => `<span class="badge badge-in">${v}</span>`).join('');
-      const nombresS  = d.salidas.map(s => s.nombre);
-      const badgesOut = nombresS.map(n => `<span class="badge badge-out">${n}</span>`).join('');
-
-      const htmlVars = `
-        <div class="vars-row fade-in">
-          <div class="var-card entradas">
-            <h3>Entradas (${d.entradas.length})</h3>
-            <div class="badges">${badgesIn}</div>
-          </div>
-          <div class="var-card salidas">
-            <h3>Salidas (${nombresS.length})</h3>
-            <div class="badges">${badgesOut}</div>
-          </div>
-        </div>
-      `;
-
-      // --- Tabla ---
-      const thIn  = d.entradas.map(v => `<th class="col-in">${v}</th>`).join('');
-      const thOut = nombresS.map(n => `<th class="col-out">${n}</th>`).join('');
-
-      const filas = d.tabla.map(fila => {
-        const tdIn  = d.entradas.map(v =>
-          `<td class="${fila[v] === 1 ? 'val-1-in' : 'val-0-in'}">${fila[v]}</td>`
-        ).join('');
-        const tdOut = nombresS.map(n =>
-          `<td class="col-out ${fila[n] === 1 ? 'val-1-out' : 'val-0-out'}">${fila[n] === -1 ? '?' : fila[n]}</td>`
-        ).join('');
-        return `<tr>${tdIn}<td class="sep-col"></td>${tdOut}</tr>`;
-      }).join('');
-
-      const htmlTabla = `
-        <div class="tabla-wrap fade-in">
-          <div class="tabla-header">
-            <span>Tabla de verdad</span>
-            <span class="filas-count">${d.tabla.length} filas · ${d.entradas.length + nombresS.length} columnas</span>
-          </div>
-          <div class="tabla-scroll">
-            <table>
-              <thead>
-                <tr>${thIn}<th class="sep-col"></th>${thOut}</tr>
-              </thead>
-              <tbody>${filas}</tbody>
-            </table>
-          </div>
-        </div>
-      `;
-
-      return htmlResumen + htmlVars + htmlTabla;
-    }
-  </script>
+function buildQmTable(columnas, filas) {
+  const ths = columnas.map(c => `<th>${c}</th>`).join('');
+  return `
+    <div class="qm-tabla">
+      <table>
+        <thead><tr>${ths}</tr></thead>
+        <tbody>${filas}</tbody>
+      </table>
+    </div>`;
+}
+</script>
 </body>
 </html>

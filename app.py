@@ -9,6 +9,7 @@ from sympy.logic.boolalg import simplify_logic
 from sympy import symbols
 import json
 import itertools
+import re
 
 load_dotenv()
 
@@ -28,7 +29,12 @@ class Message(BaseModel):
     message: str
 
 
+# ═══════════════════════════════════════════════════
+# TABLA DE VERDAD
+# ═══════════════════════════════════════════════════
+
 def calcular_tabla(entradas, salidas):
+    """Calcula la tabla de verdad matemáticamente con Python."""
     combinaciones = list(itertools.product([0, 1], repeat=len(entradas)))
     tabla = []
     for combo in combinaciones:
@@ -44,7 +50,12 @@ def calcular_tabla(entradas, salidas):
     return tabla
 
 
+# ═══════════════════════════════════════════════════
+# EXPRESIÓN CANÓNICA SOP
+# ═══════════════════════════════════════════════════
+
 def expresion_canonica(entradas, salida_nombre, tabla):
+    """Genera la expresión canónica SOP desde la tabla de verdad."""
     minterminos = []
     for fila in tabla:
         if fila[salida_nombre] == 1:
@@ -59,8 +70,12 @@ def expresion_canonica(entradas, salida_nombre, tabla):
     return " + ".join(minterminos)
 
 
+# ═══════════════════════════════════════════════════
+# SIMPLIFICACIÓN CON SYMPY
+# ═══════════════════════════════════════════════════
+
 def simplificar_con_sympy(entradas, salida_nombre, tabla):
-    """Simplifica usando sympy y devuelve la expresión mínima."""
+    """Simplifica la expresión usando sympy y devuelve notación con prima."""
     vars_sym = symbols(" ".join(entradas))
     if len(entradas) == 1:
         vars_sym = (vars_sym,)
@@ -76,15 +91,13 @@ def simplificar_con_sympy(entradas, salida_nombre, tabla):
             expr = expr | termino
 
     simplificada = simplify_logic(expr, form="dnf")
+    simplificada_str = str(simplificada)
 
-    # Convertir a notación con prima
-    resultado = str(simplificada)
-    resultado = resultado.replace("~", "").replace(" & ", "").replace(" | ", " + ")
-    for var in sorted(entradas, key=len, reverse=True):
-        resultado = resultado.replace(f"~{var}", f"{var}'")
+    if simplificada_str == "False":
+        return "0"
+    if simplificada_str == "True":
+        return "1"
 
-    # Sympy usa ~ antes, re-procesar correctamente
-    simplificada_str = str(simplify_logic(expr, form="dnf"))
     terminos = simplificada_str.split(" | ")
     terminos_display = []
     for t in terminos:
@@ -102,56 +115,39 @@ def simplificar_con_sympy(entradas, salida_nombre, tabla):
     return " + ".join(terminos_display) if terminos_display else "0"
 
 
-# ── KARNAUGH (hasta 4 variables) ──────────────────────────────
+# ═══════════════════════════════════════════════════
+# KARNAUGH (hasta 4 variables)
+# ═══════════════════════════════════════════════════
 
 def karnaugh_grupos(entradas, salida_nombre, tabla):
-    """
-    Encuentra los grupos del mapa de Karnaugh y devuelve:
-    - La estructura del mapa
-    - Los grupos con sus celdas y término simplificado
-    """
+    """Encuentra los grupos del mapa de Karnaugh."""
     n = len(entradas)
-    # Índices de mintérminos donde salida=1
-    minterms = []
-    for i, fila in enumerate(tabla):
-        if fila[salida_nombre] == 1:
-            minterms.append(i)
+    minterms = [i for i, fila in enumerate(tabla) if fila[salida_nombre] == 1]
 
     if not minterms:
         return {"mapa": [], "grupos": [], "expresion": "0"}
     if len(minterms) == len(tabla):
         return {"mapa": [], "grupos": [], "expresion": "1"}
 
-    # Construir mapa según número de variables
     if n == 1:
-        orden_filas = [0, 1]
-        orden_cols = []
-        mapa = [[orden_filas[i]] for i in range(2)]
-        col_labels = []
+        mapa = [[0], [1]]
         fila_labels = [entradas[0] + "'", entradas[0]]
-
+        col_labels  = []
     elif n == 2:
-        # filas: var0, cols: var1
-        gray_2 = [0, 1]
-        mapa = [[r * 2 + c for c in gray_2] for r in gray_2]
+        mapa = [[0, 1], [2, 3]]
         fila_labels = [entradas[0] + "'", entradas[0]]
         col_labels  = [entradas[1] + "'", entradas[1]]
-
     elif n == 3:
-        # filas: var0 (2), cols: var1,var2 (4) en Gray
         gray_cols = [0, 1, 3, 2]
-        mapa = [[r * 4 + c for c in gray_cols] for r in [0, 1]]
+        mapa = [[c for c in gray_cols], [c + 4 for c in gray_cols]]
         fila_labels = [entradas[0] + "'", entradas[0]]
         col_labels  = ["00", "01", "11", "10"]
-
     else:  # n == 4
-        gray_rows = [0, 1, 3, 2]
-        gray_cols = [0, 1, 3, 2]
-        mapa = [[r * 4 + c for c in gray_cols] for r in gray_rows]
+        gray = [0, 1, 3, 2]
+        mapa = [[r * 4 + c for c in gray] for r in gray]
         fila_labels = ["00", "01", "11", "10"]
         col_labels  = ["00", "01", "11", "10"]
 
-    # Encontrar grupos (potencias de 2: 8,4,2,1) con wrap-around
     grupos = encontrar_grupos(minterms, mapa, entradas, tabla)
 
     return {
@@ -165,31 +161,28 @@ def karnaugh_grupos(entradas, salida_nombre, tabla):
 
 
 def encontrar_grupos(minterms, mapa, entradas, tabla):
-    """Encuentra agrupaciones válidas de Karnaugh."""
     filas = len(mapa)
     cols  = len(mapa[0]) if mapa else 0
     n     = len(entradas)
 
-    # Posición de cada mintérmino en el mapa
     pos = {}
     for r in range(filas):
         for c in range(cols):
             pos[mapa[r][c]] = (r, c)
 
     mint_set = set(minterms)
-    grupos = []
+    grupos   = []
     cubiertos = set()
-    colores = ["#ef4444","#f97316","#eab308","#22c55e",
-               "#06b6d4","#6366f1","#ec4899","#14b8a6"]
+    colores  = ["#ef4444", "#f97316", "#eab308", "#22c55e",
+                "#06b6d4", "#6366f1", "#ec4899", "#14b8a6"]
 
     tamaños = []
-    t = min(8, 2**n)
+    t = min(8, 2 ** n)
     while t >= 1:
         tamaños.append(t)
         t //= 2
 
     for tam in tamaños:
-        # Generar todos los rectángulos posibles de tamaño tam
         for r0 in range(filas):
             for c0 in range(cols):
                 for alto in [1, 2, 4]:
@@ -208,7 +201,6 @@ def encontrar_grupos(minterms, mapa, entradas, tabla):
                             continue
                         if celdas_set.issubset(cubiertos):
                             continue
-                        # Calcular término simplificado
                         termino = simplificar_termino_grupo(celdas, entradas, tabla)
                         posiciones = [(pos[c][0], pos[c][1]) for c in celdas]
                         color = colores[len(grupos) % len(colores)]
@@ -220,7 +212,6 @@ def encontrar_grupos(minterms, mapa, entradas, tabla):
                             "tam": tam
                         })
                         cubiertos |= celdas_set
-
         if cubiertos == mint_set:
             break
 
@@ -228,7 +219,6 @@ def encontrar_grupos(minterms, mapa, entradas, tabla):
 
 
 def simplificar_termino_grupo(celdas, entradas, tabla):
-    """Determina qué variables son constantes en el grupo → término simplificado."""
     filas_grupo = [tabla[i] for i in celdas]
     termino = ""
     for var in entradas:
@@ -239,12 +229,12 @@ def simplificar_termino_grupo(celdas, entradas, tabla):
     return termino if termino else "1"
 
 
-# ── QUINE-McCLUSKEY (5+ variables) ───────────────────────────
+# ═══════════════════════════════════════════════════
+# QUINE-McCLUSKEY (5+ variables)
+# ═══════════════════════════════════════════════════
 
 def quine_mccluskey(entradas, salida_nombre, tabla):
-    """
-    Implementa Quine-McCluskey y devuelve los pasos para mostrar al usuario.
-    """
+    """Implementa Quine-McCluskey y devuelve los pasos para mostrar al usuario."""
     n = len(entradas)
     minterms = [i for i, f in enumerate(tabla) if f[salida_nombre] == 1]
 
@@ -255,9 +245,6 @@ def quine_mccluskey(entradas, salida_nombre, tabla):
 
     def a_binario(num):
         return format(num, f"0{n}b")
-
-    def contar_unos(b):
-        return b.count("1")
 
     def pueden_combinarse(a, b):
         diff = [i for i in range(n) if a[i] != b[i]]
@@ -277,24 +264,18 @@ def quine_mccluskey(entradas, salida_nombre, tabla):
                 t += entradas[i] + "'"
         return t if t else "1"
 
-    # Paso 1: agrupar por número de unos
     grupos = {}
     for m in minterms:
         b = a_binario(m)
-        k = contar_unos(b)
+        k = b.count("1")
         grupos.setdefault(k, []).append((b, frozenset([m])))
 
     pasos = []
 
-    # Tabla paso 1
     filas_p1 = []
     for k in sorted(grupos):
         for b, ms in grupos[k]:
-            filas_p1.append({
-                "minterms": sorted(ms),
-                "binario": b,
-                "unos": k
-            })
+            filas_p1.append({"minterms": sorted(ms), "binario": b, "unos": k})
 
     pasos.append({
         "titulo": "Paso 1 — Mintérminos agrupados por número de unos",
@@ -304,9 +285,7 @@ def quine_mccluskey(entradas, salida_nombre, tabla):
         "filas": filas_p1
     })
 
-    # Paso 2+: combinaciones sucesivas
     implicantes_primos = []
-    usados_global = set()
     ronda = 1
 
     while True:
@@ -316,16 +295,16 @@ def quine_mccluskey(entradas, salida_nombre, tabla):
 
         claves = sorted(grupos.keys())
         for i in range(len(claves) - 1):
-            k1, k2 = claves[i], claves[i+1]
+            k1, k2 = claves[i], claves[i + 1]
             if k2 - k1 != 1:
                 continue
             for b1, ms1 in grupos[k1]:
                 for b2, ms2 in grupos[k2]:
                     ok, pos = pueden_combinarse(b1, b2)
                     if ok:
-                        nuevo = combinar(b1, b2, pos)
+                        nuevo   = combinar(b1, b2, pos)
                         ms_nuevo = ms1 | ms2
-                        k_nuevo = contar_unos(nuevo.replace("-", "0"))
+                        k_nuevo  = nuevo.replace("-", "0").count("1")
                         nuevos_grupos.setdefault(k_nuevo, [])
                         if (nuevo, ms_nuevo) not in nuevos_grupos[k_nuevo]:
                             nuevos_grupos[k_nuevo].append((nuevo, ms_nuevo))
@@ -337,7 +316,6 @@ def quine_mccluskey(entradas, salida_nombre, tabla):
                             "termino": binario_a_termino(nuevo)
                         })
 
-        # Los no usados son implicantes primos
         for k, lst in grupos.items():
             for item in lst:
                 if item not in usados:
@@ -353,14 +331,13 @@ def quine_mccluskey(entradas, salida_nombre, tabla):
         if filas_ronda:
             pasos.append({
                 "titulo": f"Paso {ronda + 1} — Combinaciones ronda {ronda}",
-                "explicacion": f"Se comparan grupos adyacentes. Si dos términos difieren en exactamente una posición, se combinan reemplazando esa posición con '-' (variable eliminada).",
+                "explicacion": "Se comparan grupos adyacentes. Si dos términos difieren en exactamente una posición, se combinan reemplazando esa posición con '-' (variable eliminada).",
                 "tipo": "tabla_combinaciones",
                 "columnas": ["Combinación", "Resultado", "Término"],
                 "filas": filas_ronda
             })
 
         if not nuevos_grupos:
-            # Agregar restantes como implicantes primos
             for k, lst in grupos.items():
                 for item in lst:
                     b, ms = item
@@ -378,7 +355,6 @@ def quine_mccluskey(entradas, salida_nombre, tabla):
         if ronda > 10:
             break
 
-    # Paso final: implicantes primos
     pasos.append({
         "titulo": f"Paso {ronda + 1} — Implicantes primos encontrados",
         "explicacion": "Los términos que no pudieron combinarse más son los implicantes primos. La expresión simplificada es la suma de todos ellos.",
@@ -388,9 +364,93 @@ def quine_mccluskey(entradas, salida_nombre, tabla):
     })
 
     expresion = " + ".join(ip["termino"] for ip in implicantes_primos) or "0"
-
     return {"pasos": pasos, "expresion": expresion}
 
+
+# ═══════════════════════════════════════════════════
+# DIAGRAMA LADDER
+# ═══════════════════════════════════════════════════
+
+def parsear_contacto(token):
+    """
+    Convierte un token como "AB'" o "A'B" en lista de contactos.
+    Cada variable es UN solo carácter seguido opcionalmente de prima.
+    """
+    contactos = []
+    i = 0
+    token = token.strip()
+    while i < len(token):
+        # Saltar espacios
+        if token[i] == ' ':
+            i += 1
+            continue
+        # Leer variable (letra)
+        if token[i].isalpha():
+            var = token[i]
+            i += 1
+            # Verificar si le sigue prima
+            negado = False
+            if i < len(token) and token[i] == "'":
+                negado = True
+                i += 1
+            contactos.append({"var": var, "negado": negado})
+        else:
+            i += 1
+    return contactos
+
+
+def expresion_a_ladder(nombre_salida, expresion_simplificada):
+    """
+    Convierte una expresión simplificada en formato SOP a estructura Ladder.
+
+    Retorna lista de escalones, cada uno con sus contactos en serie.
+    Escalones en paralelo = términos separados por +
+    Contactos en serie    = variables dentro de un término producto
+    """
+    if expresion_simplificada in ("0", "1"):
+        return [{
+            "contactos": [{"var": expresion_simplificada, "negado": False}],
+            "bobina": nombre_salida
+        }]
+
+    # Separar por + (suma de productos)
+    terminos = [t.strip() for t in expresion_simplificada.split("+")]
+    escalones = []
+
+    for termino in terminos:
+        termino = termino.strip()
+        if not termino:
+            continue
+        contactos = parsear_contacto(termino)
+        if contactos:
+            escalones.append({
+                "contactos": contactos,
+                "bobina": nombre_salida
+            })
+
+    return escalones if escalones else [{"contactos": [], "bobina": nombre_salida}]
+
+
+def construir_ladder(salidas):
+    """
+    Construye la estructura completa del ladder para todas las salidas.
+    """
+    resultado = {"salidas": []}
+    for salida in salidas:
+        escalones = expresion_a_ladder(
+            salida["nombre"],
+            salida["expresion_simplificada"]
+        )
+        resultado["salidas"].append({
+            "nombre": salida["nombre"],
+            "escalones": escalones
+        })
+    return resultado
+
+
+# ═══════════════════════════════════════════════════
+# ENDPOINTS
+# ═══════════════════════════════════════════════════
 
 @app.get("/", response_class=HTMLResponse)
 def index():
@@ -402,6 +462,7 @@ def index():
 def chat(body: Message):
     agent.messages.append({"role": "user", "content": body.message})
 
+    # Bucle hasta obtener respuesta final del agente
     while True:
         response = client.responses.create(
             model="gpt-4o-mini",
@@ -412,6 +473,7 @@ def chat(body: Message):
         if not called_tool:
             break
 
+    # Obtener último mensaje del asistente
     last = None
     for o in reversed(agent.messages):
         if isinstance(o, dict) and o.get("role") == "assistant":
@@ -421,6 +483,7 @@ def chat(body: Message):
     if not last:
         return JSONResponse({"error": "No se obtuvo respuesta del modelo."})
 
+    # Limpiar posibles backticks
     text = last["content"] if isinstance(last["content"], str) else ""
     text = text.strip().strip("```json").strip("```").strip()
 
@@ -432,13 +495,17 @@ def chat(body: Message):
     if "entradas" not in data or "salidas" not in data:
         return JSONResponse({"error": "Faltan campos 'entradas' o 'salidas' en la respuesta."})
 
+    # 1. Calcular tabla de verdad
     data["tabla"] = calcular_tabla(data["entradas"], data["salidas"])
     n = len(data["entradas"])
 
     for salida in data["salidas"]:
+        # 2. Expresión canónica SOP
         salida["expresion_canonica"] = expresion_canonica(
             data["entradas"], salida["nombre"], data["tabla"]
         )
+
+        # 3. Simplificación (Karnaugh o Quine-McCluskey)
         if n <= 4:
             salida["metodo"] = "karnaugh"
             salida["karnaugh"] = karnaugh_grupos(
@@ -454,5 +521,8 @@ def chat(body: Message):
             )
             salida["quine_pasos"] = resultado_qm["pasos"]
             salida["expresion_simplificada"] = resultado_qm["expresion"]
+
+    # 4. Diagrama Ladder
+    data["ladder"] = construir_ladder(data["salidas"])
 
     return JSONResponse(data)

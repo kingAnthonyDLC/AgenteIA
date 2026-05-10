@@ -5,30 +5,79 @@ class Agent:
     def __init__(self):
         self.setup_tools()
         self.messages = [
-            {"role": "system", "content": """Eres un experto en lógica booleana.
-Analiza la problemática del usuario e identifica TODAS las variables de entrada y salida necesarias, sin limitarte a ningún número fijo.
+            {"role": "system", "content": """Eres un experto en automatización industrial y lógica booleana.
+            Analiza la problemática del usuario y determina si es COMBINACIONAL o SECUENCIAL.
 
-Responde ÚNICAMENTE con este JSON, sin texto adicional ni backticks:
+            Un problema es SECUENCIAL si menciona: tiempo, retardo, demora, segundos, minutos,
+            "después de", "mientras", "durante", "sigue funcionando", "apaga luego de", o cualquier
+            condición que dependa del tiempo.
 
-{
-  "resumen": "descripción breve de la lógica identificada",
-  "entradas": ["A", "B", "C"],
-  "salidas": [
-    {
-      "nombre": "S1",
-      "descripcion": "descripción de cuándo se activa esta salida",
-      "expresion_display": "A·B' + C",
-      "expresion_eval": "(A and not B) or C"
-    }
-  ]
-}
+            Un problema es COMBINACIONAL si la salida depende únicamente del estado actual de las entradas,
+            sin ninguna condición de tiempo.
 
-Reglas para las expresiones:
-- expresion_display: usa notación algebraica booleana. Producto = AB, Suma = +, Negación = prima (')
-- expresion_eval: usa SOLO sintaxis Python válida: and, or, not, paréntesis y nombres de variables
-- Ambas expresiones deben ser lógicamente equivalentes
-- Identifica tantas entradas y salidas como el problema requiera
-- Los nombres de las variables deben ser cortos y representativos del problema"""}
+            ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            CASO 1 — PROBLEMA COMBINACIONAL
+            ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            Responde ÚNICAMENTE con este JSON:
+
+            {
+            "tipo": "combinacional",
+            "resumen": "descripción breve de la lógica identificada",
+            "entradas": ["A", "B", "C"],
+            "salidas": [
+                {
+                "nombre": "S1",
+                "descripcion": "descripción de cuándo se activa esta salida",
+                "expresion_display": "A·B' + C",
+                "expresion_eval": "(A and not B) or C"
+                }
+            ]
+            }
+
+            ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            CASO 2 — PROBLEMA SECUENCIAL (con temporizadores)
+            ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            Responde ÚNICAMENTE con este JSON:
+
+            {
+            "tipo": "secuencial",
+            "resumen": "descripción breve del proceso",
+            "entradas": ["NivelAlto", "Falla"],
+            "salidas": ["Bomba", "Alarma"],
+            "temporizadores": [
+                {
+                "nombre": "T1",
+                "tipo": "TON",
+                "descripcion": "Retardo de arranque de la bomba",
+                "entrada": "NivelAlto",
+                "condicion_eval": "NivelAlto and not Falla",
+                "condicion_display": "NivelAlto · Falla'",
+                "tiempo_ms": 5000,
+                "salida": "Bomba"
+                },
+                {
+                "nombre": "T2",
+                "tipo": "TOF",
+                "descripcion": "La alarma sigue activa 10s después de la falla",
+                "entrada": "Falla",
+                "condicion_eval": "Falla",
+                "condicion_display": "Falla",
+                "tiempo_ms": 10000,
+                "salida": "Alarma"
+                }
+            ]
+            }
+
+            Tipos de temporizador disponibles:
+            - TON (Timer On Delay):  salida se activa DESPUÉS de X ms con la entrada activa
+            - TOF (Timer Off Delay): salida se desactiva DESPUÉS de X ms sin la entrada
+
+            Reglas generales para ambos casos:
+            - Los nombres de variables deben ser cortos y representativos
+            - expresion_display: notación algebraica booleana con prima (') para negaciones
+            - expresion_eval: sintaxis Python válida con and, or, not
+            - Identifica tantas variables y bloques como el problema requiera
+            - Nada más. Solo el JSON, sin texto adicional ni backticks."""}
         ]
 
     def setup_tools(self):

@@ -18,61 +18,20 @@
       --out-color: #4ade80;
       --accent:    #818cf8;
       --accent2:   #c084fc;
+      --ton-color: #fb923c;
+      --tof-color: #f472b6;
       --mono:      'IBM Plex Mono', monospace;
       --sans:      'Syne', sans-serif;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--sans);
-      min-height: 100vh;
-      padding: 2.5rem 1.5rem 5rem;
-    }
+    body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; padding: 2.5rem 1.5rem 5rem; }
 
     /* ── MENÚ LATERAL ── */
-    .sidenav {
-      position: fixed;
-      left: 1.25rem;
-      top: 50%;
-      transform: translateY(-50%);
-      z-index: 200;
-      display: flex;
-      flex-direction: column;
-      gap: .6rem;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .3s;
-    }
+    .sidenav { position: fixed; left: 1.25rem; top: 50%; transform: translateY(-50%); z-index: 200; display: flex; flex-direction: column; gap: .6rem; opacity: 0; pointer-events: none; transition: opacity .3s; }
     .sidenav.visible { opacity: 1; pointer-events: all; }
-    .sidenav-item {
-      display: flex;
-      align-items: center;
-      gap: .6rem;
-      cursor: pointer;
-    }
-    .sidenav-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: var(--border2);
-      border: 2px solid var(--border2);
-      transition: all .2s;
-      flex-shrink: 0;
-    }
-    .sidenav-label {
-      font-family: var(--mono);
-      font-size: .72rem;
-      color: var(--muted);
-      background: var(--surface);
-      border: 1px solid var(--border2);
-      padding: .2rem .6rem;
-      border-radius: 5px;
-      white-space: nowrap;
-      opacity: 0;
-      transform: translateX(-6px);
-      transition: opacity .2s, transform .2s;
-      pointer-events: none;
-    }
+    .sidenav-item { display: flex; align-items: center; gap: .6rem; cursor: pointer; }
+    .sidenav-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border2); border: 2px solid var(--border2); transition: all .2s; flex-shrink: 0; }
+    .sidenav-label { font-family: var(--mono); font-size: .72rem; color: var(--muted); background: var(--surface); border: 1px solid var(--border2); padding: .2rem .6rem; border-radius: 5px; white-space: nowrap; opacity: 0; transform: translateX(-6px); transition: opacity .2s, transform .2s; pointer-events: none; }
     .sidenav-item:hover .sidenav-label { opacity: 1; transform: translateX(0); }
     .sidenav-item:hover .sidenav-dot   { background: var(--accent); border-color: var(--accent); transform: scale(1.3); }
     .sidenav-item.active .sidenav-dot  { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 3px rgba(129,140,248,.2); }
@@ -80,152 +39,35 @@
     @media (max-width: 900px) { .sidenav { display: none; } }
 
     /* ── PANEL FLOTANTE ── */
-    .state-panel-float {
-      position: fixed;
-      bottom: 1.5rem;
-      left: 50%;
-      transform: translateX(-50%) translateY(120px);
-      z-index: 100;
-      background: var(--surface);
-      border: 1px solid var(--border2);
-      border-radius: 12px;
-      padding: .65rem 1rem;
-      display: flex;
-      flex-wrap: wrap;
-      gap: .45rem;
-      align-items: center;
-      box-shadow: 0 8px 32px rgba(0,0,0,.5);
-      transition: transform .35s cubic-bezier(.4,0,.2,1), opacity .35s;
-      opacity: 0;
-      pointer-events: none;
-      max-width: 90vw;
-    }
+    .state-panel-float { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(120px); z-index: 100; background: var(--surface); border: 1px solid var(--border2); border-radius: 12px; padding: .65rem 1rem; display: flex; flex-wrap: wrap; gap: .45rem; align-items: center; box-shadow: 0 8px 32px rgba(0,0,0,.5); transition: transform .35s cubic-bezier(.4,0,.2,1), opacity .35s; opacity: 0; pointer-events: none; max-width: 90vw; }
     .state-panel-float.visible { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: all; }
-    .state-panel-float .panel-label {
-      font-family: var(--mono);
-      font-size: .68rem;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      margin-right: .35rem;
-      white-space: nowrap;
-    }
+    .state-panel-float .panel-label { font-family: var(--mono); font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-right: .35rem; white-space: nowrap; }
 
     /* ── HEADER ── */
-    header {
-      max-width: 960px;
-      margin: 0 auto 2.5rem;
-      display: flex;
-      align-items: baseline;
-      gap: 1rem;
-    }
-    header h1 {
-      font-size: 1.6rem;
-      font-weight: 800;
-      letter-spacing: -.02em;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    header span {
-      font-family: var(--mono);
-      font-size: .75rem;
-      color: var(--muted);
-      border: 1px solid var(--border2);
-      padding: .2rem .55rem;
-      border-radius: 4px;
-    }
+    header { max-width: 960px; margin: 0 auto 2.5rem; display: flex; align-items: baseline; gap: 1rem; }
+    header h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -.02em; background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    header span { font-family: var(--mono); font-size: .75rem; color: var(--muted); border: 1px solid var(--border2); padding: .2rem .55rem; border-radius: 4px; }
 
     /* ── INPUT ── */
-    .input-wrap {
-      max-width: 960px;
-      margin: 0 auto 2rem;
-      background: var(--surface);
-      border: 1px solid var(--border2);
-      border-radius: 14px;
-      padding: 1.25rem;
-    }
-    .input-wrap label {
-      display: block;
-      font-size: .78rem;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      color: var(--muted);
-      margin-bottom: .6rem;
-    }
-    textarea {
-      width: 100%;
-      background: transparent;
-      border: none;
-      outline: none;
-      resize: none;
-      color: var(--text);
-      font-family: var(--sans);
-      font-size: 1rem;
-      line-height: 1.6;
-      min-height: 72px;
-    }
+    .input-wrap { max-width: 960px; margin: 0 auto 2rem; background: var(--surface); border: 1px solid var(--border2); border-radius: 14px; padding: 1.25rem; }
+    .input-wrap label { display: block; font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: .6rem; }
+    textarea { width: 100%; background: transparent; border: none; outline: none; resize: none; color: var(--text); font-family: var(--sans); font-size: 1rem; line-height: 1.6; min-height: 72px; }
     textarea::placeholder { color: var(--muted); }
-    .input-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-top: 1px solid var(--border);
-      padding-top: .9rem;
-      margin-top: .75rem;
-    }
+    .input-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: .9rem; margin-top: .75rem; }
     .hint { font-size: .78rem; color: var(--muted); font-family: var(--mono); }
-    button {
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      color: #fff;
-      border: none;
-      padding: .6rem 1.4rem;
-      border-radius: 8px;
-      font-family: var(--sans);
-      font-size: .9rem;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: .5rem;
-      transition: opacity .2s;
-    }
+    button { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; border: none; padding: .6rem 1.4rem; border-radius: 8px; font-family: var(--sans); font-size: .9rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: .5rem; transition: opacity .2s; }
     button:hover { opacity: .85; }
     button:disabled { opacity: .4; cursor: not-allowed; }
-    .spinner {
-      width: 14px; height: 14px;
-      border: 2px solid rgba(255,255,255,.3);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin .7s linear infinite;
-    }
+    .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ── RESULTADO ── */
     #resultado { max-width: 960px; margin: 0 auto; display: none; }
 
     /* ── SECCIÓN ── */
-    .seccion {
-      background: var(--surface);
-      border: 1px solid var(--border2);
-      border-radius: 14px;
-      margin-bottom: 1.25rem;
-      overflow: hidden;
-    }
-    .seccion-header {
-      padding: .85rem 1.25rem;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .seccion-header > span:first-child {
-      font-size: .75rem;
-      text-transform: uppercase;
-      letter-spacing: .09em;
-      color: var(--muted);
-    }
+    .seccion { background: var(--surface); border: 1px solid var(--border2); border-radius: 14px; margin-bottom: 1.25rem; overflow: hidden; }
+    .seccion-header { padding: .85rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .seccion-header > span:first-child { font-size: .75rem; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); }
     .seccion-body { padding: 1.25rem; }
 
     /* ── RESUMEN ── */
@@ -252,6 +94,8 @@
     .badge { font-family: var(--mono); font-size: .85rem; font-weight: 600; padding: .25rem .7rem; border-radius: 6px; }
     .badge-in  { background: #0c2a3a; color: var(--in-color);  border: 1px solid #1a4a5e; }
     .badge-out { background: #0c2a1a; color: var(--out-color); border: 1px solid #1a4a2a; }
+    .badge-ton { background: #2a1500; color: var(--ton-color); border: 1px solid #4a2500; }
+    .badge-tof { background: #2a0a1a; color: var(--tof-color); border: 1px solid #4a1a2a; }
 
     /* ── TABLA DE VERDAD ── */
     .tabla-scroll { overflow-x: auto; }
@@ -318,6 +162,21 @@
     .state-btn.on .dot { background: var(--in-color); }
     .ladder-svg { display: block; }
 
+    /* ── RESUMEN TIMERS ── */
+    .timer-cards { display: flex; flex-direction: column; gap: .85rem; }
+    .timer-card { background: var(--surface2); border: 1px solid var(--border2); border-radius: 10px; padding: 1rem 1.25rem; display: flex; gap: 1rem; align-items: flex-start; }
+    .timer-badge { font-family: var(--mono); font-size: .78rem; font-weight: 700; padding: .3rem .7rem; border-radius: 6px; white-space: nowrap; flex-shrink: 0; }
+    .timer-badge.ton { background: #2a1500; color: var(--ton-color); border: 1px solid #5a3000; }
+    .timer-badge.tof { background: #2a0a1a; color: var(--tof-color); border: 1px solid #5a1a3a; }
+    .timer-info { display: flex; flex-direction: column; gap: .3rem; }
+    .timer-nombre { font-family: var(--mono); font-size: .88rem; font-weight: 600; color: var(--text); }
+    .timer-desc { font-size: .82rem; color: var(--muted); line-height: 1.5; }
+    .timer-meta { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: .2rem; }
+    .timer-meta span { font-family: var(--mono); font-size: .75rem; }
+    .timer-cond  { color: var(--in-color); }
+    .timer-time  { color: var(--ton-color); }
+    .timer-salida { color: var(--out-color); }
+
     /* ── ERROR ── */
     .error-box { background: #1a0a0a; border: 1px solid #4a1a1a; border-radius: 12px; padding: 1rem 1.25rem; color: #f87171; font-family: var(--mono); font-size: .88rem; }
 
@@ -353,13 +212,13 @@
 </nav>
 
 <header>
-  <h1>Tabla de Verdad</h1>
-  <span>Agente IA</span>
+  <h1>Agente IA</h1>
+  <span>by: Anthony De La Cruz</span>
 </header>
 
 <div class="input-wrap">
-  <label>Describe tu problema lógico</label>
-  <textarea id="txt" placeholder="Ej: La alarma se activa si hay movimiento Y la puerta está abierta. La luz se enciende si hay movimiento O si la puerta está abierta y no hay luz."></textarea>
+  <label>Describe tu problema lógico o secuencial</label>
+  <textarea id="txt" placeholder="Ej combinacional: La alarma se activa si hay movimiento Y la puerta está abierta.&#10;Ej secuencial: La bomba arranca 5 segundos después de detectar nivel alto, y sigue 10s después de que baje."></textarea>
   <div class="input-footer">
     <span class="hint">Enter para enviar · Shift+Enter nueva línea</span>
     <button id="btn" onclick="enviar()"><span>Analizar</span></button>
@@ -391,14 +250,11 @@ txt.addEventListener('keydown', e => {
 async function enviar() {
   const mensaje = txt.value.trim();
   if (!mensaje) return;
-
   btn.disabled = true;
   btn.innerHTML = '<div class="spinner"></div><span>Analizando...</span>';
   res.style.display = 'none';
   ladderData  = null;
   inputStates = {};
-
-  // Ocultar sidenav al iniciar nueva consulta
   document.getElementById('sidenav').classList.remove('visible');
 
   try {
@@ -413,16 +269,22 @@ async function enviar() {
     if (data.error) {
       res.innerHTML = `<div class="error-box fade-in">⚠ ${data.error}</div>`;
     } else {
-      data.entradas.forEach(v => { inputStates[v] = 0; });
-      if (data.ladder) ladderData = data.ladder;
-      res.innerHTML = renderizar(data);
-      // Inicializar panel flotante con los botones correctos
-      construirPanelFlotante(data.entradas);
-      // Activar navegación
-      setTimeout(() => {
-        initSidenav();
-        initFloatPanel();
-      }, 100);
+      // Inicializar estados según tipo
+      const entradas = data.entradas || [];
+      entradas.forEach(v => { inputStates[v] = 0; });
+
+      if (data.tipo === 'combinacional') {
+        ladderData = data.ladder || null;
+      } else {
+        ladderData = data.ladder_secuencial || null;
+      }
+
+      res.innerHTML = data.tipo === 'combinacional'
+        ? renderCombinacional(data)
+        : renderSecuencial(data);
+
+      construirPanelFlotante(entradas);
+      setTimeout(() => { initSidenav(); initFloatPanel(); }, 100);
     }
     res.style.display = 'block';
   } catch(e) {
@@ -435,14 +297,14 @@ async function enviar() {
 }
 
 /* ═══════════════════════════════════════
-   RENDERIZADO PRINCIPAL
+   RAMA COMBINACIONAL
 ═══════════════════════════════════════ */
-function renderizar(d) {
+function renderCombinacional(d) {
   return renderResumen(d)
        + renderVars(d)
        + renderTablaVerdad(d)
        + renderSimplificacion(d)
-       + renderLadderSection(d);
+       + renderLadderCombinacional(d);
 }
 
 /* ── RESUMEN ── */
@@ -451,29 +313,16 @@ function renderResumen(d) {
     <div class="expr-fila">
       <span class="expr-nombre">${s.nombre}</span>
       <div class="expr-detalles">
-        <div class="expr-linea">
-          <span class="etiqueta">inferida</span>
-          <span class="formula formula-inferida">${s.expresion_display}</span>
-        </div>
-        <div class="expr-linea">
-          <span class="etiqueta">canónica</span>
-          <span class="formula formula-canonica">${s.expresion_canonica}</span>
-        </div>
-        <div class="expr-linea">
-          <span class="etiqueta">simplif.</span>
-          <span class="formula formula-simple">${s.expresion_simplificada}</span>
-        </div>
+        <div class="expr-linea"><span class="etiqueta">inferida</span><span class="formula formula-inferida">${s.expresion_display}</span></div>
+        <div class="expr-linea"><span class="etiqueta">canónica</span><span class="formula formula-canonica">${s.expresion_canonica}</span></div>
+        <div class="expr-linea"><span class="etiqueta">simplif.</span><span class="formula formula-simple">${s.expresion_simplificada}</span></div>
         <div class="expr-desc">${s.descripcion}</div>
       </div>
     </div>`).join('');
-
   return `
     <div class="seccion fade-in" id="sec-analisis">
       <div class="seccion-header"><span>Análisis lógico</span></div>
-      <div class="seccion-body">
-        <p class="resumen-texto">${d.resumen}</p>
-        <div class="expr-bloque">${exprs}</div>
-      </div>
+      <div class="seccion-body"><p class="resumen-texto">${d.resumen}</p><div class="expr-bloque">${exprs}</div></div>
     </div>`;
 }
 
@@ -483,14 +332,8 @@ function renderVars(d) {
   const bOut = d.salidas.map(s => `<span class="badge badge-out">${s.nombre}</span>`).join('');
   return `
     <div class="vars-grid fade-in" id="sec-vars">
-      <div class="var-card entradas">
-        <h3>Entradas (${d.entradas.length})</h3>
-        <div class="badges">${bIn}</div>
-      </div>
-      <div class="var-card salidas">
-        <h3>Salidas (${d.salidas.length})</h3>
-        <div class="badges">${bOut}</div>
-      </div>
+      <div class="var-card entradas"><h3>Entradas (${d.entradas.length})</h3><div class="badges">${bIn}</div></div>
+      <div class="var-card salidas"><h3>Salidas (${d.salidas.length})</h3><div class="badges">${bOut}</div></div>
     </div>`;
 }
 
@@ -500,27 +343,17 @@ function renderTablaVerdad(d) {
   const thIn  = d.entradas.map(v => `<th class="col-in">${v}</th>`).join('');
   const thOut = nombres.map(n => `<th class="col-out">${n}</th>`).join('');
   const filas = d.tabla.map(fila => {
-    const tdIn  = d.entradas.map(v =>
-      `<td class="${fila[v]===1?'val-1-in':'val-0-in'}">${fila[v]}</td>`).join('');
-    const tdOut = nombres.map(n =>
-      `<td class="col-out ${fila[n]===1?'val-1-out':'val-0-out'}">${fila[n]===-1?'?':fila[n]}</td>`).join('');
+    const tdIn  = d.entradas.map(v => `<td class="${fila[v]===1?'val-1-in':'val-0-in'}">${fila[v]}</td>`).join('');
+    const tdOut = nombres.map(n => `<td class="col-out ${fila[n]===1?'val-1-out':'val-0-out'}">${fila[n]===-1?'?':fila[n]}</td>`).join('');
     return `<tr>${tdIn}<td class="sep-col"></td>${tdOut}</tr>`;
   }).join('');
-
   return `
     <div class="seccion fade-in" id="sec-tabla">
       <div class="seccion-header">
         <span>Tabla de verdad</span>
-        <span style="font-family:var(--mono);font-size:.72rem;color:var(--muted)">
-          ${d.tabla.length} filas · ${d.entradas.length + nombres.length} columnas
-        </span>
+        <span style="font-family:var(--mono);font-size:.72rem;color:var(--muted)">${d.tabla.length} filas · ${d.entradas.length + nombres.length} columnas</span>
       </div>
-      <div class="tabla-scroll">
-        <table>
-          <thead><tr>${thIn}<th class="sep-col"></th>${thOut}</tr></thead>
-          <tbody>${filas}</tbody>
-        </table>
-      </div>
+      <div class="tabla-scroll"><table><thead><tr>${thIn}<th class="sep-col"></th>${thOut}</tr></thead><tbody>${filas}</tbody></table></div>
     </div>`;
 }
 
@@ -534,9 +367,7 @@ function renderSimplificacion(d) {
     const secId = idx === 0 ? 'id="sec-simplificacion"' : '';
     return `
       <div class="seccion fade-in" ${secId}>
-        <div class="seccion-header">
-          <span>Simplificación — ${s.nombre}</span>${badge}
-        </div>
+        <div class="seccion-header"><span>Simplificación — ${s.nombre}</span>${badge}</div>
         <div class="seccion-body">
           <div class="salida-titulo">${s.nombre} = ${s.expresion_simplificada}</div>
           ${contenido}
@@ -545,29 +376,101 @@ function renderSimplificacion(d) {
   }).join('');
 }
 
-/* ── LADDER ── */
-function renderLadderSection(d) {
+/* ── LADDER COMBINACIONAL ── */
+function renderLadderCombinacional(d) {
   if (!d.ladder || !d.ladder.salidas || d.ladder.salidas.length === 0) return '';
-
   const botones = d.entradas.map(v => `
     <button class="state-btn" id="sbtn-${v}" onclick="toggleInput('${v}')">
       <span class="dot"></span>${v}
     </button>`).join('');
-
   return `
     <div class="seccion fade-in" id="ladder-seccion">
       <div class="seccion-header">
         <span>Diagrama Ladder</span>
-        <span style="font-family:var(--mono);font-size:.7rem;color:var(--muted)">interactivo</span>
+        <span style="font-family:var(--mono);font-size:.7rem;color:var(--muted)">combinacional · interactivo</span>
       </div>
       <div class="seccion-body">
-        <div class="ladder-hint">
-          <b>Haz clic</b> en los botones de entrada para activar/desactivar · Los contactos y bobinas se actualizan en tiempo real
-        </div>
+        <div class="ladder-hint"><b>Haz clic</b> en los botones de entrada para activar/desactivar · Los contactos y bobinas se actualizan en tiempo real</div>
         <div class="state-panel" id="state-panel-inline">${botones}</div>
-        <div class="ladder-wrap" id="ladder-svg-wrap">
-          ${dibujarLadder(d.ladder, d.entradas)}
+        <div class="ladder-wrap" id="ladder-svg-wrap">${dibujarLadderCombinacional(d.ladder, d.entradas)}</div>
+      </div>
+    </div>`;
+}
+
+/* ═══════════════════════════════════════
+   RAMA SECUENCIAL
+═══════════════════════════════════════ */
+function renderSecuencial(d) {
+  return renderResumenSecuencial(d)
+       + renderVarsSecuencial(d)
+       + renderResumenTimers(d)
+       + renderLadderSecuencial(d);
+}
+
+/* ── RESUMEN SECUENCIAL ── */
+function renderResumenSecuencial(d) {
+  return `
+    <div class="seccion fade-in" id="sec-analisis">
+      <div class="seccion-header"><span>Análisis del proceso</span><span style="font-family:var(--mono);font-size:.7rem;color:var(--muted)">secuencial</span></div>
+      <div class="seccion-body"><p class="resumen-texto">${d.resumen}</p></div>
+    </div>`;
+}
+
+/* ── VARIABLES SECUENCIAL ── */
+function renderVarsSecuencial(d) {
+  const bIn  = (d.entradas || []).map(v => `<span class="badge badge-in">${v}</span>`).join('');
+  const bOut = (d.salidas  || []).map(v => `<span class="badge badge-out">${v}</span>`).join('');
+  const bTon = (d.resumen_timers || []).filter(t => t.tipo === 'TON').map(t => `<span class="badge badge-ton">${t.nombre}</span>`).join('');
+  const bTof = (d.resumen_timers || []).filter(t => t.tipo === 'TOF').map(t => `<span class="badge badge-tof">${t.nombre}</span>`).join('');
+  return `
+    <div class="vars-grid fade-in" id="sec-vars" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">
+      <div class="var-card entradas"><h3>Entradas (${(d.entradas||[]).length})</h3><div class="badges">${bIn || '<span style="color:var(--muted);font-size:.8rem">—</span>'}</div></div>
+      <div class="var-card salidas"><h3>Salidas (${(d.salidas||[]).length})</h3><div class="badges">${bOut || '<span style="color:var(--muted);font-size:.8rem">—</span>'}</div></div>
+      ${bTon ? `<div class="var-card"><h3 style="color:var(--ton-color)">TON</h3><div class="badges">${bTon}</div></div>` : ''}
+      ${bTof ? `<div class="var-card"><h3 style="color:var(--tof-color)">TOF</h3><div class="badges">${bTof}</div></div>` : ''}
+    </div>`;
+}
+
+/* ── CARDS DE TEMPORIZADORES ── */
+function renderResumenTimers(d) {
+  if (!d.resumen_timers || d.resumen_timers.length === 0) return '';
+  const cards = d.resumen_timers.map(t => `
+    <div class="timer-card">
+      <span class="timer-badge ${t.tipo.toLowerCase()}">${t.tipo}</span>
+      <div class="timer-info">
+        <span class="timer-nombre">${t.nombre}</span>
+        <span class="timer-desc">${t.descripcion}</span>
+        <div class="timer-meta">
+          <span class="timer-cond">↳ condición: ${t.condicion}</span>
+          <span class="timer-time">⏱ ${t.tiempo_display}</span>
+          <span class="timer-salida">→ ${t.salida}</span>
         </div>
+      </div>
+    </div>`).join('');
+  return `
+    <div class="seccion fade-in" id="sec-simplificacion">
+      <div class="seccion-header"><span>Temporizadores identificados</span></div>
+      <div class="seccion-body"><div class="timer-cards">${cards}</div></div>
+    </div>`;
+}
+
+/* ── LADDER SECUENCIAL ── */
+function renderLadderSecuencial(d) {
+  if (!d.ladder_secuencial) return '';
+  const botones = (d.entradas || []).map(v => `
+    <button class="state-btn" id="sbtn-${v}" onclick="toggleInput('${v}')">
+      <span class="dot"></span>${v}
+    </button>`).join('');
+  return `
+    <div class="seccion fade-in" id="ladder-seccion">
+      <div class="seccion-header">
+        <span>Diagrama Ladder</span>
+        <span style="font-family:var(--mono);font-size:.7rem;color:var(--muted)">secuencial · interactivo</span>
+      </div>
+      <div class="seccion-body">
+        <div class="ladder-hint"><b>Haz clic</b> en las entradas para simular · Los bloques TON/TOF muestran su estado de activación</div>
+        <div class="state-panel" id="state-panel-inline">${botones}</div>
+        <div class="ladder-wrap" id="ladder-svg-wrap">${dibujarLadderSecuencial(d.ladder_secuencial)}</div>
       </div>
     </div>`;
 }
@@ -578,25 +481,20 @@ function renderLadderSection(d) {
 function renderKarnaugh(s) {
   const k = s.karnaugh;
   if (!k || !k.mapa || k.mapa.length === 0) {
-    const msg = s.expresion_simplificada === '0'
-      ? 'La salida siempre es 0 — no hay mintérminos.'
-      : 'La salida siempre es 1 — todos los mintérminos activos.';
-    return `<p style="color:var(--muted);font-size:.88rem">${msg}</p>`;
+    return `<p style="color:var(--muted);font-size:.88rem">${s.expresion_simplificada==='0'?'Salida siempre 0.':'Salida siempre 1.'}</p>`;
   }
-  const minterms   = new Set(k.minterms || []);
-  const grupos     = k.grupos || [];
-  const colLabels  = k.col_labels || [];
-  const filLabels  = k.fila_labels || [];
+  const minterms = new Set(k.minterms || []);
+  const grupos   = k.grupos || [];
   const celdaColor = {};
   grupos.forEach(g => g.celdas.forEach(c => { if (!celdaColor[c]) celdaColor[c] = g.color; }));
 
   let thead = '<tr><th class="kmap-corner"> </th>';
-  colLabels.forEach(cl => { thead += `<th>${cl}</th>`; });
+  (k.col_labels || []).forEach(cl => { thead += `<th>${cl}</th>`; });
   thead += '</tr>';
 
   let tbody = '';
   k.mapa.forEach((fila, ri) => {
-    tbody += `<tr><th>${filLabels[ri] || ''}</th>`;
+    tbody += `<tr><th>${(k.fila_labels||[])[ri]||''}</th>`;
     fila.forEach(idx => {
       const val    = minterms.has(idx) ? 1 : 0;
       const color  = celdaColor[idx] || null;
@@ -609,227 +507,282 @@ function renderKarnaugh(s) {
   const items = grupos.map(g => `
     <div class="leyenda-item">
       <div class="leyenda-dot" style="background:${g.color}"></div>
-      <div>
-        <div class="leyenda-texto">${g.termino}</div>
-        <div class="leyenda-mints">m(${g.celdas.join(', ')})</div>
-      </div>
+      <div><div class="leyenda-texto">${g.termino}</div><div class="leyenda-mints">m(${g.celdas.join(', ')})</div></div>
     </div>`).join('');
 
   return `
     <div class="karnaugh-wrap">
-      <div class="kmap-container">
-        <table class="kmap-table">
-          <thead>${thead}</thead>
-          <tbody>${tbody}</tbody>
-        </table>
-      </div>
-      <div class="leyenda">
-        <h4>Grupos identificados</h4>
-        ${items || '<span style="color:var(--muted);font-size:.8rem">Sin grupos</span>'}
-      </div>
+      <div class="kmap-container"><table class="kmap-table"><thead>${thead}</thead><tbody>${tbody}</tbody></table></div>
+      <div class="leyenda"><h4>Grupos identificados</h4>${items||'<span style="color:var(--muted);font-size:.8rem">Sin grupos</span>'}</div>
     </div>`;
 }
 
 /* ═══════════════════════════════════════
-   QUINE-McCLUSKEY
+   QUINE
 ═══════════════════════════════════════ */
 function renderQuine(s) {
   if (!s.quine_pasos || s.quine_pasos.length === 0)
     return `<p style="color:var(--muted);font-size:.88rem">Sin pasos disponibles.</p>`;
-
   const sep = '<hr style="border:none;border-top:1px solid var(--border);margin:1.5rem 0">';
   return s.quine_pasos.map(paso => {
     let tablaHtml = '';
     if (paso.tipo === 'tabla_minterms') {
-      const filas = paso.filas.map(f =>
-        `<tr><td>${f.minterms.join(', ')}</td><td class="binario">${f.binario}</td><td style="text-align:center">${f.unos}</td></tr>`).join('');
-      tablaHtml = buildQmTable(paso.columnas, filas);
+      tablaHtml = buildQmTable(paso.columnas, paso.filas.map(f =>
+        `<tr><td>${f.minterms.join(', ')}</td><td class="binario">${f.binario}</td><td style="text-align:center">${f.unos}</td></tr>`).join(''));
     } else if (paso.tipo === 'tabla_combinaciones') {
-      const filas = paso.filas.map(f =>
-        `<tr><td>${f.combinacion}</td><td class="binario">${f.resultado}</td><td class="termino">${f.termino}</td></tr>`).join('');
-      tablaHtml = buildQmTable(paso.columnas, filas);
+      tablaHtml = buildQmTable(paso.columnas, paso.filas.map(f =>
+        `<tr><td>${f.combinacion}</td><td class="binario">${f.resultado}</td><td class="termino">${f.termino}</td></tr>`).join(''));
     } else if (paso.tipo === 'tabla_implicantes') {
-      const filas = paso.filas.map(f =>
-        `<tr><td>${f.minterms.join(', ')}</td><td class="binario">${f.binario}</td><td class="termino">${f.termino}</td></tr>`).join('');
-      tablaHtml = buildQmTable(paso.columnas, filas);
+      tablaHtml = buildQmTable(paso.columnas, paso.filas.map(f =>
+        `<tr><td>${f.minterms.join(', ')}</td><td class="binario">${f.binario}</td><td class="termino">${f.termino}</td></tr>`).join(''));
     }
-    return `
-      <div class="qm-paso">
-        <div class="qm-titulo">${paso.titulo}</div>
-        <div class="qm-explicacion">${paso.explicacion}</div>
-        ${tablaHtml}
-      </div>`;
+    return `<div class="qm-paso"><div class="qm-titulo">${paso.titulo}</div><div class="qm-explicacion">${paso.explicacion}</div>${tablaHtml}</div>`;
   }).join(sep);
 }
-
-function buildQmTable(columnas, filas) {
-  return `<div class="qm-tabla"><table>
-    <thead><tr>${columnas.map(c => `<th>${c}</th>`).join('')}</tr></thead>
-    <tbody>${filas}</tbody>
-  </table></div>`;
+function buildQmTable(cols, filas) {
+  return `<div class="qm-tabla"><table><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${filas}</tbody></table></div>`;
 }
 
 /* ═══════════════════════════════════════
-   LADDER SVG
+   TOGGLE ENTRADA
 ═══════════════════════════════════════ */
 function toggleInput(v) {
   inputStates[v] = inputStates[v] === 1 ? 0 : 1;
-  // Sincronizar botón inline y flotante
-  ['sbtn', 'sbtn-float'].forEach(prefix => {
-    const b = document.getElementById(`${prefix}-${v}`);
+  ['sbtn', 'sbtn-float'].forEach(p => {
+    const b = document.getElementById(`${p}-${v}`);
     if (b) b.classList.toggle('on', inputStates[v] === 1);
   });
-  // Redibujar SVG
   const wrap = document.getElementById('ladder-svg-wrap');
-  if (wrap && ladderData) {
-    wrap.innerHTML = dibujarLadder(ladderData, Object.keys(inputStates));
-  }
+  if (!wrap || !ladderData) return;
+  wrap.innerHTML = ladderData.tipo === 'secuencial'
+    ? dibujarLadderSecuencial(ladderData)
+    : dibujarLadderCombinacional(ladderData, Object.keys(inputStates));
 }
 
-function dibujarLadder(ladder, entradas) {
-  const salidas = ladder.salidas;
-  const RAIL_LEFT         = 30;
-  const RAIL_RIGHT_OFFSET = 120;
-  const ROW_H             = 70;
-  const CONTACT_W         = 55;
-  const CONTACT_H         = 28;
-  const COIL_R            = 18;
-  const PAD_TOP           = 30;
-  const PAD_BOT           = 30;
+/* ═══════════════════════════════════════
+   SVG — LADDER COMBINACIONAL
+═══════════════════════════════════════ */
+function dibujarLadderCombinacional(ladder, entradas) {
+  const salidas        = ladder.salidas;
+  const RAIL_LEFT      = 30;
+  const RAIL_RIGHT_OFF = 120;
+  const ROW_H          = 70;
+  const CONTACT_W      = 55;
+  const CONTACT_H      = 28;
+  const COIL_R         = 18;
+  const PAD_TOP        = 30;
+  const PAD_BOT        = 30;
 
-  let maxContactos = 0;
-  salidas.forEach(s => s.escalones.forEach(esc => {
-    if (esc.contactos.length > maxContactos) maxContactos = esc.contactos.length;
-  }));
+  let maxCt = 0;
+  salidas.forEach(s => s.escalones.forEach(e => { if (e.contactos.length > maxCt) maxCt = e.contactos.length; }));
 
-  const AREA_W     = Math.max(420, maxContactos * (CONTACT_W + 16) + 80);
+  const AREA_W     = Math.max(420, maxCt * (CONTACT_W + 16) + 80);
   const RAIL_RIGHT = RAIL_LEFT + AREA_W;
-
-  let totalFilas = 0;
+  let totalFilas   = 0;
   salidas.forEach(s => { totalFilas += s.escalones.length; });
   totalFilas += Math.max(0, salidas.length - 1);
 
   const svgH = PAD_TOP + totalFilas * ROW_H + PAD_BOT;
-  const svgW = RAIL_RIGHT + RAIL_RIGHT_OFFSET + 20;
+  const svgW = RAIL_RIGHT + RAIL_RIGHT_OFF + 20;
 
-  const C_RAIL    = '#2e323d';
-  const C_ACTIVE  = '#4ade80';
-  const C_INACTIVE= '#2e323d';
-  const C_TEXT    = '#e8eaf0';
-  const C_MUTED   = '#6b7080';
-  const C_NC      = '#38bdf8';
-  const C_BG      = '#161920';
-
+  const CA = '#4ade80', CI = '#2e323d', CR = '#2e323d', CT = '#e8eaf0', CM = '#6b7080', CNC = '#38bdf8', BG = '#161920';
   let els = [];
 
-  // Rieles verticales
-  els.push(`<line x1="${RAIL_LEFT}" y1="${PAD_TOP-10}" x2="${RAIL_LEFT}" y2="${svgH-PAD_BOT+10}" stroke="${C_RAIL}" stroke-width="4" stroke-linecap="round"/>`);
-  els.push(`<line x1="${RAIL_RIGHT}" y1="${PAD_TOP-10}" x2="${RAIL_RIGHT}" y2="${svgH-PAD_BOT+10}" stroke="${C_RAIL}" stroke-width="4" stroke-linecap="round"/>`);
-  els.push(`<text x="${RAIL_LEFT}" y="${PAD_TOP-16}" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="${C_MUTED}">L+</text>`);
-  els.push(`<text x="${RAIL_RIGHT}" y="${PAD_TOP-16}" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="${C_MUTED}">L-</text>`);
+  els.push(`<line x1="${RAIL_LEFT}" y1="${PAD_TOP-10}" x2="${RAIL_LEFT}" y2="${svgH-PAD_BOT+10}" stroke="${CR}" stroke-width="4" stroke-linecap="round"/>`);
+  els.push(`<line x1="${RAIL_RIGHT}" y1="${PAD_TOP-10}" x2="${RAIL_RIGHT}" y2="${svgH-PAD_BOT+10}" stroke="${CR}" stroke-width="4" stroke-linecap="round"/>`);
+  els.push(`<text x="${RAIL_LEFT}" y="${PAD_TOP-16}" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="${CM}">L+</text>`);
+  els.push(`<text x="${RAIL_RIGHT}" y="${PAD_TOP-16}" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="${CM}">L-</text>`);
 
-  let currentY = PAD_TOP;
-  let primera  = true;
-
-  salidas.forEach(salida => {
-    if (!primera) {
-      els.push(`<line x1="${RAIL_LEFT+10}" y1="${currentY-10}" x2="${RAIL_RIGHT-10}" y2="${currentY-10}" stroke="${C_RAIL}" stroke-width="1" stroke-dasharray="4 4" opacity="0.4"/>`);
-    }
+  let curY = PAD_TOP; let primera = true;
+  salidas.forEach(sal => {
+    if (!primera) els.push(`<line x1="${RAIL_LEFT+10}" y1="${curY-10}" x2="${RAIL_RIGHT-10}" y2="${curY-10}" stroke="${CR}" stroke-width="1" stroke-dasharray="4 4" opacity="0.4"/>`);
     primera = false;
+    const nEsc = sal.escalones.length;
+    const bloqueH = nEsc * ROW_H;
+    const midY    = curY + bloqueH / 2;
+    const bobActiva = sal.escalones.some(esc => esc.contactos.every(ct => {
+      const v = inputStates[ct.var] !== undefined ? inputStates[ct.var] : 0;
+      return ct.negado ? v === 0 : v === 1;
+    }));
 
-    const numEsc    = salida.escalones.length;
-    const bloqueH   = numEsc * ROW_H;
-    const bloqueMidY = currentY + bloqueH / 2;
-    const bobinaActiva = salida.escalones.some(esc =>
-      esc.contactos.every(ct => {
-        const val = inputStates[ct.var] !== undefined ? inputStates[ct.var] : 0;
-        return ct.negado ? val === 0 : val === 1;
-      })
-    );
+    if (nEsc > 1) els.push(`<line x1="${RAIL_LEFT+4}" y1="${curY+ROW_H/2}" x2="${RAIL_LEFT+4}" y2="${curY+bloqueH-ROW_H/2}" stroke="${CI}" stroke-width="2.5"/>`);
 
-    // Barra izquierda paralela
-    if (numEsc > 1) {
-      const y1 = currentY + ROW_H / 2;
-      const y2 = currentY + bloqueH - ROW_H / 2;
-      els.push(`<line x1="${RAIL_LEFT+4}" y1="${y1}" x2="${RAIL_LEFT+4}" y2="${y2}" stroke="${C_INACTIVE}" stroke-width="2.5"/>`);
-    }
-
-    salida.escalones.forEach((esc, ei) => {
-      const midY = currentY + ei * ROW_H + ROW_H / 2;
-      const escActivo = esc.contactos.every(ct => {
-        const val = inputStates[ct.var] !== undefined ? inputStates[ct.var] : 0;
-        return ct.negado ? val === 0 : val === 1;
+    sal.escalones.forEach((esc, ei) => {
+      const my = curY + ei * ROW_H + ROW_H / 2;
+      const activo = esc.contactos.every(ct => {
+        const v = inputStates[ct.var] !== undefined ? inputStates[ct.var] : 0;
+        return ct.negado ? v === 0 : v === 1;
       });
-      const wireColor = escActivo ? C_ACTIVE : C_INACTIVE;
+      const wc = activo ? CA : CI;
+      els.push(`<line x1="${RAIL_LEFT+4}" y1="${my}" x2="${RAIL_LEFT+30}" y2="${my}" stroke="${wc}" stroke-width="2.5"/>`);
 
-      // Línea desde riel al primer contacto
-      els.push(`<line x1="${RAIL_LEFT+4}" y1="${midY}" x2="${RAIL_LEFT+30}" y2="${midY}" stroke="${wireColor}" stroke-width="2.5"/>`);
-
-      let xCursor = RAIL_LEFT + 30;
-
+      let xC = RAIL_LEFT + 30;
       esc.contactos.forEach((ct, ci) => {
-        const val      = inputStates[ct.var] !== undefined ? inputStates[ct.var] : 0;
-        const ctActivo = ct.negado ? val === 0 : val === 1;
-        const ctColor  = ctActivo ? C_ACTIVE : C_INACTIVE;
-        const lblColor = ct.negado ? C_NC : C_TEXT;
-
-        // Separador entre contactos
-        if (ci > 0) {
-          els.push(`<line x1="${xCursor}" y1="${midY}" x2="${xCursor+10}" y2="${midY}" stroke="${ctColor}" stroke-width="2.5"/>`);
-          xCursor += 10;
-        }
-
-        const cx = xCursor + CONTACT_W / 2;
-
-        // Líneas verticales del contacto
-        els.push(`<line x1="${cx-10}" y1="${midY-CONTACT_H/2}" x2="${cx-10}" y2="${midY+CONTACT_H/2}" stroke="${ctColor}" stroke-width="2.5"/>`);
-        els.push(`<line x1="${cx+10}" y1="${midY-CONTACT_H/2}" x2="${cx+10}" y2="${midY+CONTACT_H/2}" stroke="${ctColor}" stroke-width="2.5"/>`);
-        // Línea horizontal de paso
-        els.push(`<line x1="${cx-10}" y1="${midY}" x2="${cx+10}" y2="${midY}" stroke="${ctColor}" stroke-width="2.5"/>`);
-
-        // Diagonal para NC
-        if (ct.negado) {
-          els.push(`<line x1="${cx-8}" y1="${midY+CONTACT_H/2-4}" x2="${cx+8}" y2="${midY-CONTACT_H/2+4}" stroke="${ctColor}" stroke-width="2"/>`);
-        }
-
-        // Etiqueta
-        const label = ct.negado ? `${ct.var}'` : ct.var;
-        els.push(`<text x="${cx}" y="${midY-CONTACT_H/2-5}" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="600" fill="${lblColor}">${label}</text>`);
-
-        xCursor += CONTACT_W;
+        const v  = inputStates[ct.var] !== undefined ? inputStates[ct.var] : 0;
+        const ca = ct.negado ? v === 0 : v === 1;
+        const cc = ca ? CA : CI;
+        const lc = ct.negado ? CNC : CT;
+        if (ci > 0) { els.push(`<line x1="${xC}" y1="${my}" x2="${xC+10}" y2="${my}" stroke="${cc}" stroke-width="2.5"/>`); xC += 10; }
+        const cx = xC + CONTACT_W / 2;
+        els.push(`<line x1="${cx-10}" y1="${my-CONTACT_H/2}" x2="${cx-10}" y2="${my+CONTACT_H/2}" stroke="${cc}" stroke-width="2.5"/>`);
+        els.push(`<line x1="${cx+10}" y1="${my-CONTACT_H/2}" x2="${cx+10}" y2="${my+CONTACT_H/2}" stroke="${cc}" stroke-width="2.5"/>`);
+        els.push(`<line x1="${cx-10}" y1="${my}" x2="${cx+10}" y2="${my}" stroke="${cc}" stroke-width="2.5"/>`);
+        if (ct.negado) els.push(`<line x1="${cx-8}" y1="${my+CONTACT_H/2-4}" x2="${cx+8}" y2="${my-CONTACT_H/2+4}" stroke="${cc}" stroke-width="2"/>`);
+        els.push(`<text x="${cx}" y="${my-CONTACT_H/2-5}" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="600" fill="${lc}">${ct.negado?ct.var+"'":ct.var}</text>`);
+        xC += CONTACT_W;
       });
-
-      // Línea al riel derecho
-      els.push(`<line x1="${xCursor}" y1="${midY}" x2="${RAIL_RIGHT-4}" y2="${midY}" stroke="${wireColor}" stroke-width="2.5"/>`);
+      els.push(`<line x1="${xC}" y1="${my}" x2="${RAIL_RIGHT-4}" y2="${my}" stroke="${wc}" stroke-width="2.5"/>`);
     });
 
-    // Barra derecha paralela
-    if (numEsc > 1) {
-      const y1 = currentY + ROW_H / 2;
-      const y2 = currentY + bloqueH - ROW_H / 2;
-      els.push(`<line x1="${RAIL_RIGHT-4}" y1="${y1}" x2="${RAIL_RIGHT-4}" y2="${y2}" stroke="${C_INACTIVE}" stroke-width="2.5"/>`);
-    }
+    if (nEsc > 1) els.push(`<line x1="${RAIL_RIGHT-4}" y1="${curY+ROW_H/2}" x2="${RAIL_RIGHT-4}" y2="${curY+bloqueH-ROW_H/2}" stroke="${CI}" stroke-width="2.5"/>`);
 
-    // Línea a bobina
-    const bobColor  = bobinaActiva ? C_ACTIVE : C_INACTIVE;
-    const coilX     = RAIL_RIGHT + 40;
-    els.push(`<line x1="${RAIL_RIGHT-4}" y1="${bloqueMidY}" x2="${coilX-COIL_R}" y2="${bloqueMidY}" stroke="${bobColor}" stroke-width="2.5"/>`);
-
-    // Bobina
-    const coilFill   = bobinaActiva ? '#0c2a1a' : '#12151d';
-    const coilStroke = bobinaActiva ? C_ACTIVE  : '#2e323d';
-    els.push(`<circle cx="${coilX}" cy="${bloqueMidY}" r="${COIL_R}" fill="${coilFill}" stroke="${coilStroke}" stroke-width="2.5"/>`);
-    els.push(`<text x="${coilX}" y="${bloqueMidY+1}" text-anchor="middle" dominant-baseline="middle" font-family="IBM Plex Mono" font-size="13" font-weight="600" fill="${bobinaActiva ? C_ACTIVE : C_MUTED}">( )</text>`);
-    els.push(`<text x="${coilX}" y="${bloqueMidY-COIL_R-6}" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="600" fill="${bobinaActiva ? C_ACTIVE : C_MUTED}">${salida.nombre}</text>`);
-
-    // Línea bobina → riel derecho
-    els.push(`<line x1="${coilX+COIL_R}" y1="${bloqueMidY}" x2="${RAIL_RIGHT+RAIL_RIGHT_OFFSET-10}" y2="${bloqueMidY}" stroke="${bobColor}" stroke-width="2.5"/>`);
-
-    currentY += numEsc * ROW_H;
+    const bc = bobActiva ? CA : CI;
+    const cx = RAIL_RIGHT + 40;
+    els.push(`<line x1="${RAIL_RIGHT-4}" y1="${midY}" x2="${cx-COIL_R}" y2="${midY}" stroke="${bc}" stroke-width="2.5"/>`);
+    els.push(`<circle cx="${cx}" cy="${midY}" r="${COIL_R}" fill="${bobActiva?'#0c2a1a':'#12151d'}" stroke="${bobActiva?CA:'#2e323d'}" stroke-width="2.5"/>`);
+    els.push(`<text x="${cx}" y="${midY+1}" text-anchor="middle" dominant-baseline="middle" font-family="IBM Plex Mono" font-size="13" font-weight="600" fill="${bobActiva?CA:CM}">( )</text>`);
+    els.push(`<text x="${cx}" y="${midY-COIL_R-6}" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="600" fill="${bobActiva?CA:CM}">${sal.nombre}</text>`);
+    els.push(`<line x1="${cx+COIL_R}" y1="${midY}" x2="${RAIL_RIGHT+RAIL_RIGHT_OFF-10}" y2="${midY}" stroke="${bc}" stroke-width="2.5"/>`);
+    curY += nEsc * ROW_H;
   });
 
   return `<svg class="ladder-svg" width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg">
-    <rect width="${svgW}" height="${svgH}" fill="${C_BG}" rx="10"/>
+    <rect width="${svgW}" height="${svgH}" fill="${BG}" rx="10"/>
+    ${els.join('\n')}
+  </svg>`;
+}
+
+/* ═══════════════════════════════════════
+   SVG — LADDER SECUENCIAL (TON / TOF)
+═══════════════════════════════════════ */
+function dibujarLadderSecuencial(ladder) {
+  const escalones      = ladder.escalones || [];
+  const RAIL_LEFT      = 30;
+  const RAIL_RIGHT_OFF = 160;
+  const ROW_H          = 80;
+  const CONTACT_W      = 65;
+  const CONTACT_H      = 28;
+  const TIMER_W        = 100;
+  const TIMER_H        = 52;
+  const COIL_R         = 18;
+  const PAD_TOP        = 30;
+  const PAD_BOT        = 30;
+
+  // Calcular ancho
+  let maxW = 0;
+  escalones.forEach(esc => {
+    const w = esc.contactos.length * (CONTACT_W + 12) + (esc.timer ? TIMER_W + 20 : COIL_R * 2 + 20);
+    if (w > maxW) maxW = w;
+  });
+
+  const AREA_W     = Math.max(500, maxW + 60);
+  const RAIL_RIGHT = RAIL_LEFT + AREA_W;
+  const svgH       = PAD_TOP + escalones.length * ROW_H + PAD_BOT;
+  const svgW       = RAIL_RIGHT + RAIL_RIGHT_OFF + 20;
+
+  const CA = '#4ade80', CI = '#2e323d', CR = '#2e323d', CT = '#e8eaf0';
+  const CM = '#6b7080', CNC = '#38bdf8', BG = '#161920';
+  const CTON = '#fb923c', CTOF = '#f472b6';
+
+  let els = [];
+
+  // Rieles
+  els.push(`<line x1="${RAIL_LEFT}" y1="${PAD_TOP-10}" x2="${RAIL_LEFT}" y2="${svgH-PAD_BOT+10}" stroke="${CR}" stroke-width="4" stroke-linecap="round"/>`);
+  els.push(`<line x1="${RAIL_RIGHT}" y1="${PAD_TOP-10}" x2="${RAIL_RIGHT}" y2="${svgH-PAD_BOT+10}" stroke="${CR}" stroke-width="4" stroke-linecap="round"/>`);
+  els.push(`<text x="${RAIL_LEFT}" y="${PAD_TOP-16}" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="${CM}">L+</text>`);
+  els.push(`<text x="${RAIL_RIGHT}" y="${PAD_TOP-16}" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="${CM}">L-</text>`);
+
+  escalones.forEach((esc, i) => {
+    const my = PAD_TOP + i * ROW_H + ROW_H / 2;
+
+    // Separador
+    if (i > 0) els.push(`<line x1="${RAIL_LEFT+10}" y1="${my-ROW_H/2}" x2="${RAIL_RIGHT-10}" y2="${my-ROW_H/2}" stroke="${CR}" stroke-width="1" stroke-dasharray="4 4" opacity="0.3"/>`);
+
+    // Evaluar condición de los contactos
+    const condActiva = esc.contactos.every(ct => {
+      if (ct.es_timer) return false; // timer contact siempre inactivo en sim estática
+      const v = inputStates[ct.var] !== undefined ? inputStates[ct.var] : 0;
+      return ct.negado ? v === 0 : v === 1;
+    });
+    const wc = condActiva ? CA : CI;
+
+    // Línea inicio
+    els.push(`<line x1="${RAIL_LEFT+4}" y1="${my}" x2="${RAIL_LEFT+30}" y2="${my}" stroke="${wc}" stroke-width="2.5"/>`);
+
+    let xC = RAIL_LEFT + 30;
+
+    // Dibujar contactos
+    esc.contactos.forEach((ct, ci) => {
+      if (ci > 0) { els.push(`<line x1="${xC}" y1="${my}" x2="${xC+10}" y2="${my}" stroke="${wc}" stroke-width="2.5"/>`); xC += 10; }
+
+      const cx = xC + CONTACT_W / 2;
+
+      if (ct.es_timer) {
+        // Contacto de temporizador — rectángulo punteado con T
+        const tc = ct.tipo_timer === 'TON' ? CTON : CTOF;
+        els.push(`<rect x="${cx-18}" y="${my-14}" width="36" height="28" rx="4" fill="none" stroke="${tc}" stroke-width="1.5" stroke-dasharray="4 2"/>`);
+        els.push(`<text x="${cx}" y="${my+1}" text-anchor="middle" dominant-baseline="middle" font-family="IBM Plex Mono" font-size="10" font-weight="600" fill="${tc}">${ct.var}</text>`);
+        els.push(`<text x="${cx}" y="${my-14-6}" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="${tc}">${ct.tipo_timer}</text>`);
+      } else {
+        const v  = inputStates[ct.var] !== undefined ? inputStates[ct.var] : 0;
+        const ca = ct.negado ? v === 0 : v === 1;
+        const cc = ca ? CA : CI;
+        const lc = ct.negado ? CNC : CT;
+        // Contacto estándar
+        els.push(`<line x1="${cx-10}" y1="${my-CONTACT_H/2}" x2="${cx-10}" y2="${my+CONTACT_H/2}" stroke="${cc}" stroke-width="2.5"/>`);
+        els.push(`<line x1="${cx+10}" y1="${my-CONTACT_H/2}" x2="${cx+10}" y2="${my+CONTACT_H/2}" stroke="${cc}" stroke-width="2.5"/>`);
+        els.push(`<line x1="${cx-10}" y1="${my}" x2="${cx+10}" y2="${my}" stroke="${cc}" stroke-width="2.5"/>`);
+        if (ct.negado) els.push(`<line x1="${cx-8}" y1="${my+CONTACT_H/2-4}" x2="${cx+8}" y2="${my-CONTACT_H/2+4}" stroke="${cc}" stroke-width="2"/>`);
+        els.push(`<text x="${cx}" y="${my-CONTACT_H/2-5}" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="600" fill="${lc}">${ct.negado?ct.var+"'":ct.var}</text>`);
+      }
+      xC += CONTACT_W;
+    });
+
+    // Línea antes del bloque final
+    els.push(`<line x1="${xC}" y1="${my}" x2="${xC+14}" y2="${my}" stroke="${wc}" stroke-width="2.5"/>`);
+    xC += 14;
+
+    if (esc.tipo === 'timer_coil' && esc.timer) {
+      // ══ BLOQUE TEMPORIZADOR ══
+      const t   = esc.timer;
+      const tc  = t.tipo === 'TON' ? CTON : CTOF;
+      const tf  = condActiva ? '#2a1200' : '#12151d';
+      const bx  = xC;
+      const by  = my - TIMER_H / 2;
+
+      // Caja del timer
+      els.push(`<rect x="${bx}" y="${by}" width="${TIMER_W}" height="${TIMER_H}" rx="6" fill="${tf}" stroke="${condActiva ? tc : '#2e323d'}" stroke-width="2"/>`);
+
+      // Tipo (TON / TOF)
+      els.push(`<text x="${bx + TIMER_W/2}" y="${by+14}" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="700" fill="${tc}">${t.tipo}</text>`);
+
+      // Nombre
+      els.push(`<text x="${bx + TIMER_W/2}" y="${by+28}" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="${CT}">${t.nombre}</text>`);
+
+      // Tiempo
+      els.push(`<text x="${bx + TIMER_W/2}" y="${by+42}" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="${condActiva ? tc : CM}">PT: ${t.tiempo_display}</text>`);
+
+      // Línea de salida al riel
+      els.push(`<line x1="${bx + TIMER_W}" y1="${my}" x2="${RAIL_RIGHT-4}" y2="${my}" stroke="${wc}" stroke-width="2.5"/>`);
+
+      // Etiqueta sobre el bloque
+      els.push(`<text x="${bx + TIMER_W/2}" y="${by-6}" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="${CM}">bobina timer</text>`);
+
+    } else if (esc.tipo === 'timer_contact') {
+      // ══ BOBINA DE SALIDA ══
+      const coilX = xC + COIL_R + 5;
+      // cable a bobina
+      els.push(`<line x1="${xC}" y1="${my}" x2="${coilX - COIL_R}" y2="${my}" stroke="${CI}" stroke-width="2.5"/>`);
+      els.push(`<circle cx="${coilX}" cy="${my}" r="${COIL_R}" fill="#12151d" stroke="#2e323d" stroke-width="2.5"/>`);
+      els.push(`<text x="${coilX}" y="${my+1}" text-anchor="middle" dominant-baseline="middle" font-family="IBM Plex Mono" font-size="13" font-weight="600" fill="${CM}">( )</text>`);
+      els.push(`<text x="${coilX}" y="${my-COIL_R-6}" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="600" fill="${CM}">${esc.bobina}</text>`);
+      // cable al riel
+      els.push(`<line x1="${coilX+COIL_R}" y1="${my}" x2="${RAIL_RIGHT+RAIL_RIGHT_OFF-10}" y2="${my}" stroke="${CI}" stroke-width="2.5"/>`);
+    }
+  });
+
+  return `<svg class="ladder-svg" width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg">
+    <rect width="${svgW}" height="${svgH}" fill="${BG}" rx="10"/>
     ${els.join('\n')}
   </svg>`;
 }
@@ -839,33 +792,29 @@ function dibujarLadder(ladder, entradas) {
 ═══════════════════════════════════════ */
 function construirPanelFlotante(entradas) {
   const panel = document.getElementById('state-panel-float');
-  const label = panel.querySelector('.panel-label');
-  // Limpiar botones anteriores (mantener solo el label)
   panel.innerHTML = '<span class="panel-label">Entradas</span>';
   entradas.forEach(v => {
     const b = document.createElement('button');
-    b.className = 'state-btn';
-    b.id = `sbtn-float-${v}`;
-    b.onclick = () => toggleInput(v);
-    b.innerHTML = `<span class="dot"></span>${v}`;
+    b.className   = 'state-btn';
+    b.id          = `sbtn-float-${v}`;
+    b.onclick     = () => toggleInput(v);
+    b.innerHTML   = `<span class="dot"></span>${v}`;
     panel.appendChild(b);
   });
 }
 
 function initFloatPanel() {
-  const seccion    = document.getElementById('ladder-seccion');
+  const seccion     = document.getElementById('ladder-seccion');
   const panelInline = document.getElementById('state-panel-inline');
   const panelFloat  = document.getElementById('state-panel-float');
   if (!seccion || !panelFloat || !panelInline) return;
-
   function actualizar() {
-    const secRect    = seccion.getBoundingClientRect();
-    const inlineRect = panelInline.getBoundingClientRect();
-    const secVisible    = secRect.bottom > 0 && secRect.top < window.innerHeight;
-    const inlineVisible = inlineRect.bottom > 80 && inlineRect.top < window.innerHeight;
-    panelFloat.classList.toggle('visible', secVisible && !inlineVisible);
+    const sr = seccion.getBoundingClientRect();
+    const ir = panelInline.getBoundingClientRect();
+    const sv = sr.bottom > 0 && sr.top < window.innerHeight;
+    const iv = ir.bottom > 80 && ir.top < window.innerHeight;
+    panelFloat.classList.toggle('visible', sv && !iv);
   }
-
   window.addEventListener('scroll', actualizar, { passive: true });
   actualizar();
 }
@@ -882,21 +831,15 @@ function initSidenav() {
   const nav = document.getElementById('sidenav');
   if (!nav) return;
   nav.classList.add('visible');
-
   const ids   = ['sec-analisis', 'sec-vars', 'sec-tabla', 'sec-simplificacion', 'ladder-seccion'];
   const items = nav.querySelectorAll('.sidenav-item');
-
   const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      const idx = ids.indexOf(entry.target.id);
-      if (idx !== -1) items[idx]?.classList.toggle('active', entry.isIntersecting);
+    entries.forEach(e => {
+      const idx = ids.indexOf(e.target.id);
+      if (idx !== -1) items[idx]?.classList.toggle('active', e.isIntersecting);
     });
   }, { threshold: 0.25 });
-
-  ids.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) observer.observe(el);
-  });
+  ids.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
 }
 </script>
 </body>

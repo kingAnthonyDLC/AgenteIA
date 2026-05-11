@@ -16,7 +16,7 @@ class Agent:
             sin ninguna condición de tiempo.
 
             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-            CASO 1 — PROBLEMA COMBINACIONAL
+            CASO 1 — PROBLEMA COMBINACIONAL SIMPLE
             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
             Responde ÚNICAMENTE con este JSON:
 
@@ -25,17 +25,46 @@ class Agent:
             "resumen": "descripción breve de la lógica identificada",
             "entradas": ["A", "B", "C"],
             "salidas": [
-                {
+            {
                 "nombre": "S1",
                 "descripcion": "descripción de cuándo se activa esta salida",
                 "expresion_display": "A·B' + C",
                 "expresion_eval": "(A and not B) or C"
-                }
+            }
             ]
             }
 
             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-            CASO 2 — PROBLEMA SECUENCIAL (con temporizadores)
+            CASO 2 — PROBLEMA COMBINACIONAL MODULAR
+            ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            Si el problema es combinacional pero excede los límites (más de 12 entradas o más de 14 variables),
+            DIVÍDELO en subsistemas lógicos independientes y responde ÚNICAMENTE con este JSON:
+
+            {
+            "tipo": "modular",
+            "resumen_general": "descripción del sistema completo",
+            "subsistemas": [
+            {
+                "id": "SS1",
+                "nombre": "Sistema de Seguridad",
+                "prioridad": 1,
+                "descripcion": "gestiona paradas de emergencia",
+                "depende_de": [],
+                "entradas": ["PB_STOP", "T_ALTA", "P_ALTA"],
+                "salidas": [
+                {
+                    "nombre": "PARO_GRAL",
+                    "descripcion": "para todo el sistema",
+                    "expresion_display": "PB_STOP + T_ALTA + P_ALTA",
+                    "expresion_eval": "PB_STOP or T_ALTA or P_ALTA"
+                }
+                ]
+            }
+            ]
+            }
+
+            ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            CASO 3 — PROBLEMA SECUENCIAL (con temporizadores)
             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
             Responde ÚNICAMENTE con este JSON:
 
@@ -45,7 +74,7 @@ class Agent:
             "entradas": ["NivelAlto", "Falla"],
             "salidas": ["Bomba", "Alarma"],
             "temporizadores": [
-                {
+            {
                 "nombre": "T1",
                 "tipo": "TON",
                 "descripcion": "Retardo de arranque de la bomba",
@@ -54,30 +83,18 @@ class Agent:
                 "condicion_display": "NivelAlto · Falla'",
                 "tiempo_ms": 5000,
                 "salida": "Bomba"
-                },
-                {
-                "nombre": "T2",
-                "tipo": "TOF",
-                "descripcion": "La alarma sigue activa 10s después de la falla",
-                "entrada": "Falla",
-                "condicion_eval": "Falla",
-                "condicion_display": "Falla",
-                "tiempo_ms": 10000,
-                "salida": "Alarma"
-                }
+            }
             ]
             }
 
-            Tipos de temporizador disponibles:
-            - TON (Timer On Delay):  salida se activa DESPUÉS de X ms con la entrada activa
-            - TOF (Timer Off Delay): salida se desactiva DESPUÉS de X ms sin la entrada
-
-            Reglas generales para ambos casos:
-            - Los nombres de variables deben ser cortos y representativos
-            - expresion_display: notación algebraica booleana con prima (') para negaciones
+            REGLAS GENERALES:
+            - Máximo 12 entradas por subsistema
+            - Las salidas de un subsistema pueden ser entradas de otro (dependencias)
+            - Ordena los subsistemas por prioridad (1 primero)
             - expresion_eval: sintaxis Python válida con and, or, not
-            - Identifica tantas variables y bloques como el problema requiera
-            - Nada más. Solo el JSON, sin texto adicional ni backticks."""}
+            - expresion_display: notación booleana con prima (') para negaciones
+            - Nada más. Solo el JSON, sin texto adicional ni backticks.
+            """}
         ]
 
     def setup_tools(self):

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tabla de Verdad — Agente IA</title>
+  <title>Automatización Industrial — Agente IA</title>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -20,224 +20,286 @@
       --accent2:   #c084fc;
       --ton-color: #fb923c;
       --tof-color: #f472b6;
-      --mono:      'IBM Plex Mono', monospace;
-      --sans:      'Syne', sans-serif;
+      --p1-color:  #ef4444;
+      --p2-color:  #f97316;
+      --p3-color:  #4ade80;
+      --p4-color:  #38bdf8;
+      --p5-color:  #a78bfa;
+      --set-color: #4ade80;
+      --rst-color: #f87171;
+      --excl-color:#fbbf24;
+      --pass-color:#4ade80;
+      --fail-color:#f87171;
+      --mono: 'IBM Plex Mono', monospace;
+      --sans: 'Syne', sans-serif;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; padding: 2.5rem 1.5rem 5rem; }
 
-    /* ── MENÚ LATERAL ── */
-    .sidenav { position: fixed; left: 1.25rem; top: 50%; transform: translateY(-50%); z-index: 200; display: flex; flex-direction: column; gap: .6rem; opacity: 0; pointer-events: none; transition: opacity .3s; }
+    /* ── SIDENAV ── */
+    .sidenav { position: fixed; left: 1.25rem; top: 50%; transform: translateY(-50%); z-index: 200; display: flex; flex-direction: column; gap: .45rem; opacity: 0; pointer-events: none; transition: opacity .3s; max-height: 80vh; overflow-y: auto; scrollbar-width: none; }
+    .sidenav::-webkit-scrollbar { display: none; }
     .sidenav.visible { opacity: 1; pointer-events: all; }
     .sidenav-item { display: flex; align-items: center; gap: .6rem; cursor: pointer; }
     .sidenav-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border2); border: 2px solid var(--border2); transition: all .2s; flex-shrink: 0; }
-    .sidenav-label { font-family: var(--mono); font-size: .72rem; color: var(--muted); background: var(--surface); border: 1px solid var(--border2); padding: .2rem .6rem; border-radius: 5px; white-space: nowrap; opacity: 0; transform: translateX(-6px); transition: opacity .2s, transform .2s; pointer-events: none; }
+    .sidenav-label { font-family: var(--mono); font-size: .68rem; color: var(--muted); background: var(--surface); border: 1px solid var(--border2); padding: .15rem .5rem; border-radius: 4px; white-space: nowrap; opacity: 0; transform: translateX(-6px); transition: opacity .2s, transform .2s; pointer-events: none; max-width: 170px; overflow: hidden; text-overflow: ellipsis; }
     .sidenav-item:hover .sidenav-label { opacity: 1; transform: translateX(0); }
     .sidenav-item:hover .sidenav-dot   { background: var(--accent); border-color: var(--accent); transform: scale(1.3); }
     .sidenav-item.active .sidenav-dot  { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 3px rgba(129,140,248,.2); }
     .sidenav-item.active .sidenav-label { color: var(--accent); }
+    .sidenav-sep { height: 1px; background: var(--border); margin: .15rem 0 .15rem 4px; width: 14px; }
     @media (max-width: 900px) { .sidenav { display: none; } }
 
     /* ── PANEL FLOTANTE ── */
-    .state-panel-float { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(120px); z-index: 100; background: var(--surface); border: 1px solid var(--border2); border-radius: 12px; padding: .65rem 1rem; display: flex; flex-wrap: wrap; gap: .45rem; align-items: center; box-shadow: 0 8px 32px rgba(0,0,0,.5); transition: transform .35s cubic-bezier(.4,0,.2,1), opacity .35s; opacity: 0; pointer-events: none; max-width: 90vw; }
+    .state-panel-float { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(120px); z-index: 100; background: var(--surface); border: 1px solid var(--border2); border-radius: 12px; padding: .6rem .9rem; display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; box-shadow: 0 8px 32px rgba(0,0,0,.5); transition: transform .35s cubic-bezier(.4,0,.2,1), opacity .35s; opacity: 0; pointer-events: none; max-width: 92vw; }
     .state-panel-float.visible { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: all; }
-    .state-panel-float .panel-label { font-family: var(--mono); font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-right: .35rem; white-space: nowrap; }
+    .panel-label { font-family: var(--mono); font-size: .65rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-right: .3rem; white-space: nowrap; }
 
     /* ── HEADER ── */
-    header { max-width: 960px; margin: 0 auto 2.5rem; display: flex; align-items: baseline; gap: 1rem; }
+    header { max-width: 1000px; margin: 0 auto 2.5rem; display: flex; align-items: baseline; gap: 1rem; }
     header h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -.02em; background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
     header span { font-family: var(--mono); font-size: .75rem; color: var(--muted); border: 1px solid var(--border2); padding: .2rem .55rem; border-radius: 4px; }
 
     /* ── INPUT ── */
-    .input-wrap { max-width: 960px; margin: 0 auto 2rem; background: var(--surface); border: 1px solid var(--border2); border-radius: 14px; padding: 1.25rem; }
-    .input-wrap label { display: block; font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: .6rem; }
+    .input-wrap { max-width: 1000px; margin: 0 auto 2rem; background: var(--surface); border: 1px solid var(--border2); border-radius: 14px; padding: 1.25rem; }
+    .input-wrap label { display: block; font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: .6rem; }
     textarea { width: 100%; background: transparent; border: none; outline: none; resize: none; color: var(--text); font-family: var(--sans); font-size: 1rem; line-height: 1.6; min-height: 72px; }
     textarea::placeholder { color: var(--muted); }
-    .input-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: .9rem; margin-top: .75rem; }
-    .hint { font-size: .78rem; color: var(--muted); font-family: var(--mono); }
-    button { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; border: none; padding: .6rem 1.4rem; border-radius: 8px; font-family: var(--sans); font-size: .9rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: .5rem; transition: opacity .2s; }
-    button:hover { opacity: .85; }
-    button:disabled { opacity: .4; cursor: not-allowed; }
+    .input-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: .85rem; margin-top: .7rem; }
+    .hint { font-size: .75rem; color: var(--muted); font-family: var(--mono); }
+    .btn-enviar { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; border: none; padding: .6rem 1.4rem; border-radius: 8px; font-family: var(--sans); font-size: .9rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: .5rem; transition: opacity .2s; }
+    .btn-enviar:hover { opacity: .85; }
+    .btn-enviar:disabled { opacity: .4; cursor: not-allowed; }
     .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ── RESULTADO ── */
-    #resultado { max-width: 960px; margin: 0 auto; display: none; }
+    #resultado { max-width: 1000px; margin: 0 auto; display: none; }
 
     /* ── SECCIÓN ── */
-    .seccion { background: var(--surface); border: 1px solid var(--border2); border-radius: 14px; margin-bottom: 1.25rem; overflow: hidden; }
-    .seccion-header { padding: .85rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-    .seccion-header > span:first-child { font-size: .75rem; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); }
-    .seccion-body { padding: 1.25rem; }
+    .seccion { background: var(--surface); border: 1px solid var(--border2); border-radius: 14px; margin-bottom: 1.1rem; overflow: hidden; }
+    .seccion-header { padding: .8rem 1.2rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; transition: background .15s; }
+    .seccion-header:hover { background: var(--surface2); }
+    .header-left { display: flex; align-items: center; gap: .7rem; flex-wrap: wrap; }
+    .seccion-body { padding: 1.2rem; }
+    .seccion-content { }
+    .collapse-icon { font-size: .8rem; color: var(--muted); transition: transform .2s; flex-shrink: 0; }
+    .collapsed .collapse-icon { transform: rotate(-90deg); }
+    .collapsed .seccion-content { display: none; }
 
-    /* ── RESUMEN ── */
-    .resumen-texto { color: #b0b4c0; font-size: .95rem; line-height: 1.65; margin-bottom: 1.1rem; }
-    .expr-bloque { display: flex; flex-direction: column; gap: .75rem; }
-    .expr-fila { display: flex; align-items: flex-start; gap: .75rem; flex-wrap: wrap; }
-    .expr-nombre { font-family: var(--mono); font-size: .85rem; color: var(--out-color); font-weight: 600; min-width: 36px; padding-top: .15rem; }
-    .expr-detalles { display: flex; flex-direction: column; gap: .35rem; }
-    .expr-linea { display: flex; align-items: center; gap: .55rem; flex-wrap: wrap; }
-    .etiqueta { font-family: var(--mono); font-size: .68rem; color: var(--muted); min-width: 68px; text-transform: uppercase; letter-spacing: .05em; }
-    .formula { font-family: var(--mono); font-size: .88rem; padding: .22rem .65rem; border-radius: 6px; }
+    /* ── BADGES ── */
+    .badge-prio { font-family: var(--mono); font-size: .68rem; font-weight: 700; padding: .18rem .55rem; border-radius: 4px; white-space: nowrap; }
+    .prio-1 { background: rgba(239,68,68,.14);  color: var(--p1-color); border: 1px solid rgba(239,68,68,.28); }
+    .prio-2 { background: rgba(249,115,22,.14); color: var(--p2-color); border: 1px solid rgba(249,115,22,.28); }
+    .prio-3 { background: rgba(74,222,128,.12); color: var(--p3-color); border: 1px solid rgba(74,222,128,.24); }
+    .prio-4 { background: rgba(56,189,248,.12); color: var(--p4-color); border: 1px solid rgba(56,189,248,.24); }
+    .prio-5 { background: rgba(167,139,250,.12);color: var(--p5-color); border: 1px solid rgba(167,139,250,.24); }
+    .badge-tipo { font-family: var(--mono); font-size: .65rem; padding: .14rem .45rem; border-radius: 4px; }
+    .bt-set  { background: rgba(74,222,128,.12); color: var(--set-color); border: 1px solid rgba(74,222,128,.25); }
+    .bt-rst  { background: rgba(248,113,113,.12);color: var(--rst-color); border: 1px solid rgba(248,113,113,.25); }
+    .bt-excl { background: rgba(251,191,36,.12); color: var(--excl-color);border: 1px solid rgba(251,191,36,.25); }
+    .bt-norm { background: var(--surface2); color: var(--muted); border: 1px solid var(--border2); }
+
+    /* ── STATS ── */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px,1fr)); gap: .7rem; margin-bottom: 1.4rem; }
+    .stat-card { background: var(--surface2); border: 1px solid var(--border2); border-radius: 10px; padding: .8rem .9rem; text-align: center; }
+    .stat-val { font-family: var(--mono); font-size: 1.5rem; font-weight: 700; color: var(--accent); display: block; }
+    .stat-lbl { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-top: .15rem; display: block; }
+
+    /* ── MAPA DE CAPAS / SUBSISTEMAS ── */
+    .mapa-lista { display: flex; flex-direction: column; gap: .55rem; }
+    .mapa-item { display: flex; align-items: center; gap: .8rem; padding: .7rem 1rem; background: var(--surface2); border: 1px solid var(--border2); border-radius: 10px; cursor: pointer; transition: border-color .2s; }
+    .mapa-item:hover { border-color: var(--accent); }
+    .mapa-info { flex: 1; }
+    .mapa-nombre { font-size: .88rem; font-weight: 700; }
+    .mapa-desc   { font-size: .73rem; color: var(--muted); margin-top: .12rem; }
+    .mapa-vars   { font-family: var(--mono); font-size: .68rem; color: var(--muted); margin-top: .18rem; }
+    .mapa-arrow  { color: var(--muted); font-size: .8rem; }
+    .dep-badge   { font-family: var(--mono); font-size: .65rem; color: var(--accent); background: rgba(129,140,248,.1); border: 1px solid rgba(129,140,248,.2); padding: .12rem .4rem; border-radius: 3px; }
+
+    /* ── VARIABLES ── */
+    .vars-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(155px,1fr)); gap: .8rem; margin-bottom: 1.1rem; }
+    .var-card { background: var(--surface); border: 1px solid var(--border2); border-radius: 12px; padding: .85rem 1rem; }
+    .var-card h3 { font-size: .68rem; text-transform: uppercase; letter-spacing: .1em; margin-bottom: .6rem; }
+    .var-card.entradas h3 { color: var(--in-color); }
+    .var-card.salidas  h3 { color: var(--out-color); }
+    .var-card.internas h3 { color: var(--accent); }
+    .badges { display: flex; flex-wrap: wrap; gap: .38rem; }
+    .badge { font-family: var(--mono); font-size: .78rem; font-weight: 600; padding: .2rem .55rem; border-radius: 5px; }
+    .badge-in   { background: #0c2a3a; color: var(--in-color);  border: 1px solid #1a4a5e; }
+    .badge-out  { background: #0c2a1a; color: var(--out-color); border: 1px solid #1a4a2a; }
+    .badge-int  { background: #1a1a2e; color: var(--accent);    border: 1px solid #2a2a5e; }
+    .badge-ext  { background: #1a1a2e; color: var(--accent2);   border: 1px solid #3a1a5e; }
+    .badge-ton  { background: #2a1500; color: var(--ton-color); border: 1px solid #4a2500; }
+    .badge-tof  { background: #2a0a1a; color: var(--tof-color); border: 1px solid #4a1a2a; }
+
+    /* ── TABLA ENTRADAS/SALIDAS CAPAS ── */
+    .io-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: .78rem; margin-bottom: 1.1rem; }
+    .io-table th { padding: .45rem .7rem; text-align: left; font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid var(--border2); }
+    .io-table td { padding: .4rem .7rem; border-bottom: 1px solid var(--border); }
+    .io-table tr:last-child td { border-bottom: none; }
+    .io-table tr:hover td { background: var(--surface2); }
+    .io-id   { color: var(--in-color); font-weight: 600; }
+    .io-id-q { color: var(--out-color); font-weight: 600; }
+    .io-tipo { color: var(--muted); font-size: .7rem; }
+
+    /* ── VARIABLES INTERNAS ── */
+    .vi-lista { display: flex; flex-direction: column; gap: .6rem; }
+    .vi-item  { background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px; padding: .7rem .9rem; }
+    .vi-id    { font-family: var(--mono); font-size: .82rem; font-weight: 600; color: var(--accent); margin-bottom: .3rem; }
+    .vi-expr  { font-family: var(--mono); font-size: .78rem; color: var(--out-color); background: #0c2a1a; border: 1px solid #1a4a2a; padding: .2rem .55rem; border-radius: 5px; display: inline-block; margin-bottom: .25rem; word-break: break-all; }
+    .vi-desc  { font-size: .75rem; color: var(--muted); }
+
+    /* ── EXPRESIONES ── */
+    .expr-bloque { display: flex; flex-direction: column; gap: .7rem; margin-bottom: 1.1rem; }
+    .expr-fila { display: flex; align-items: flex-start; gap: .7rem; flex-wrap: wrap; }
+    .expr-nombre { font-family: var(--mono); font-size: .82rem; color: var(--out-color); font-weight: 600; min-width: 50px; padding-top: .14rem; }
+    .expr-detalles { display: flex; flex-direction: column; gap: .3rem; flex: 1; }
+    .expr-linea { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+    .etiqueta { font-family: var(--mono); font-size: .65rem; color: var(--muted); min-width: 65px; text-transform: uppercase; letter-spacing: .05em; }
+    .formula { font-family: var(--mono); font-size: .82rem; padding: .18rem .55rem; border-radius: 5px; word-break: break-all; }
     .formula-inferida { background: #1a1f2e; color: var(--accent);    border: 1px solid #2a3050; }
     .formula-canonica { background: #1a1a2e; color: #a78bfa;          border: 1px solid #3a2a60; }
     .formula-simple   { background: #0c2a1a; color: var(--out-color); border: 1px solid #1a4a2a; }
-    .expr-desc { font-size: .78rem; color: var(--muted); margin-top: .1rem; }
-
-    /* ── VARIABLES ── */
-    .vars-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem; }
-    .var-card { background: var(--surface); border: 1px solid var(--border2); border-radius: 14px; padding: 1rem 1.25rem; }
-    .var-card h3 { font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; margin-bottom: .75rem; }
-    .var-card.entradas h3 { color: var(--in-color); }
-    .var-card.salidas  h3 { color: var(--out-color); }
-    .badges { display: flex; flex-wrap: wrap; gap: .45rem; }
-    .badge { font-family: var(--mono); font-size: .85rem; font-weight: 600; padding: .25rem .7rem; border-radius: 6px; }
-    .badge-in  { background: #0c2a3a; color: var(--in-color);  border: 1px solid #1a4a5e; }
-    .badge-out { background: #0c2a1a; color: var(--out-color); border: 1px solid #1a4a2a; }
-    .badge-ton { background: #2a1500; color: var(--ton-color); border: 1px solid #4a2500; }
-    .badge-tof { background: #2a0a1a; color: var(--tof-color); border: 1px solid #4a1a2a; }
+    .formula-set      { background: #0c2a1a; color: var(--set-color); border: 1px solid #1a4a2a; }
+    .formula-rst      { background: #2a0c0c; color: var(--rst-color); border: 1px solid #4a1a1a; }
+    .expr-desc { font-size: .74rem; color: var(--muted); margin-top: .08rem; }
 
     /* ── TABLA DE VERDAD ── */
     .tabla-scroll { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-family: var(--mono); }
     thead tr { background: #12151d; }
-    th { padding: .65rem 1rem; font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; text-align: center; white-space: nowrap; }
+    th { padding: .55rem .85rem; font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; text-align: center; white-space: nowrap; }
     th.col-in  { color: var(--in-color);  border-bottom: 2px solid var(--in-color); }
     th.col-out { color: var(--out-color); border-bottom: 2px solid var(--out-color); }
     tbody tr { border-bottom: 1px solid var(--border); transition: background .1s; }
     tbody tr:last-child { border-bottom: none; }
     tbody tr:hover { background: #1a1f2e; }
-    td { padding: .55rem 1rem; text-align: center; font-size: .92rem; }
+    td { padding: .48rem .85rem; text-align: center; font-size: .86rem; }
     .sep-col { width: 2px; background: var(--border2); padding: 0; }
     td.val-1-in  { color: var(--in-color); }
     td.val-0-in  { color: #334455; }
     td.val-1-out { color: var(--out-color); font-weight: 600; }
-    td.val-0-out { color: #2a3a2a; font-weight: 600; }
+    td.val-0-out { color: #2a3a2a; }
     td.col-out   { background: rgba(74,222,128,.03); }
 
     /* ── KARNAUGH ── */
-    .karnaugh-wrap { display: flex; gap: 2.5rem; flex-wrap: wrap; align-items: flex-start; }
+    .karnaugh-wrap { display: flex; gap: 2rem; flex-wrap: wrap; align-items: flex-start; }
     .kmap-container { overflow-x: auto; }
     .kmap-table { border-collapse: separate; border-spacing: 4px; font-family: var(--mono); }
-    .kmap-table th { background: transparent; border: none; color: var(--muted); font-size: .75rem; padding: .3rem .5rem; text-align: center; border-bottom: none; }
-    .kmap-cell { width: 54px; height: 54px; text-align: center; vertical-align: middle; font-size: 1.1rem; font-weight: 600; border-radius: 8px; border: 2px solid var(--border2); background: var(--surface2); color: #334455; transition: all .2s; }
+    .kmap-table th { background: transparent; border: none; color: var(--muted); font-size: .7rem; padding: .25rem .4rem; text-align: center; border-bottom: none; }
+    .kmap-cell { width: 48px; height: 48px; text-align: center; vertical-align: middle; font-size: .95rem; font-weight: 600; border-radius: 7px; border: 2px solid var(--border2); background: var(--surface2); color: #334455; transition: all .2s; }
     .kmap-cell.val-1 { color: var(--text); background: #1a2030; }
-    .kmap-cell.resaltado { border-width: 2px; }
     .kmap-corner { background: transparent !important; border: none !important; }
-    .leyenda { display: flex; flex-direction: column; gap: .6rem; min-width: 170px; }
-    .leyenda h4 { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: .15rem; }
-    .leyenda-item { display: flex; align-items: flex-start; gap: .55rem; }
-    .leyenda-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; margin-top: .18rem; }
-    .leyenda-texto { font-family: var(--mono); font-size: .84rem; color: var(--text); }
-    .leyenda-mints { font-size: .7rem; color: var(--muted); font-family: var(--mono); }
+    .leyenda { display: flex; flex-direction: column; gap: .5rem; min-width: 150px; }
+    .leyenda h4 { font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: .1rem; }
+    .leyenda-item { display: flex; align-items: flex-start; gap: .45rem; }
+    .leyenda-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; margin-top: .18rem; }
+    .leyenda-texto { font-family: var(--mono); font-size: .8rem; color: var(--text); }
+    .leyenda-mints { font-size: .66rem; color: var(--muted); font-family: var(--mono); }
 
     /* ── QUINE ── */
-    .qm-paso { margin-bottom: 1.5rem; }
+    .qm-paso { margin-bottom: 1.3rem; }
     .qm-paso:last-child { margin-bottom: 0; }
-    .qm-titulo { font-size: .9rem; font-weight: 700; color: var(--accent); margin-bottom: .5rem; }
-    .qm-explicacion { font-size: .82rem; color: var(--muted); line-height: 1.65; margin-bottom: .85rem; padding-left: .85rem; border-left: 2px solid var(--border2); }
-    .qm-tabla { overflow-x: auto; margin-top: .5rem; }
-    .qm-tabla table { font-size: .82rem; }
-    .qm-tabla th { color: var(--accent); border-bottom: 1px solid var(--border2); font-size: .72rem; }
-    .qm-tabla td { color: #b0b4c0; border-bottom: 1px solid var(--border); padding: .45rem .85rem; }
+    .qm-titulo { font-size: .86rem; font-weight: 700; color: var(--accent); margin-bottom: .4rem; }
+    .qm-explicacion { font-size: .78rem; color: var(--muted); line-height: 1.6; margin-bottom: .75rem; padding-left: .75rem; border-left: 2px solid var(--border2); }
+    .qm-tabla { overflow-x: auto; }
+    .qm-tabla table { font-size: .78rem; }
+    .qm-tabla th { color: var(--accent); border-bottom: 1px solid var(--border2); font-size: .68rem; }
+    .qm-tabla td { color: #b0b4c0; border-bottom: 1px solid var(--border); padding: .38rem .75rem; }
     .qm-tabla tr:last-child td { border-bottom: none; }
     .qm-tabla td.termino { color: var(--out-color); font-weight: 600; }
     .qm-tabla td.binario { color: var(--in-color); }
 
-    /* ── BADGES MÉTODO ── */
-    .metodo-badge { font-family: var(--mono); font-size: .7rem; padding: .18rem .55rem; border-radius: 4px; font-weight: 600; }
+    /* ── MÉTODO BADGE ── */
+    .metodo-badge { font-family: var(--mono); font-size: .65rem; padding: .14rem .45rem; border-radius: 4px; font-weight: 600; }
     .metodo-kmap  { background: #1a2a1a; color: var(--out-color); border: 1px solid #2a4a2a; }
     .metodo-quine { background: #1a1a2e; color: var(--accent);    border: 1px solid #2a2a4e; }
-    .salida-titulo { font-size: .88rem; font-weight: 700; color: var(--out-color); margin-bottom: 1.25rem; display: flex; align-items: center; gap: .75rem; font-family: var(--mono); }
-    .salida-titulo::after { content: ''; flex: 1; height: 1px; background: var(--border2); }
+    .salida-titulo { font-size: .82rem; font-weight: 700; color: var(--out-color); margin-bottom: 1rem; display: flex; align-items: center; gap: .7rem; font-family: var(--mono); word-break: break-all; }
+    .salida-titulo::after { content: ''; flex: 1; height: 1px; background: var(--border2); min-width: 20px; }
+
+    /* ── VALIDACIÓN ── */
+    .val-resumen { display: flex; gap: .7rem; margin-bottom: 1.1rem; flex-wrap: wrap; }
+    .val-stat { padding: .45rem .9rem; border-radius: 8px; font-family: var(--mono); font-size: .82rem; font-weight: 600; }
+    .val-pass { background: rgba(74,222,128,.12); color: var(--pass-color); border: 1px solid rgba(74,222,128,.25); }
+    .val-fail { background: rgba(248,113,113,.12); color: var(--fail-color); border: 1px solid rgba(248,113,113,.25); }
+    .val-total { background: var(--surface2); color: var(--muted); border: 1px solid var(--border2); }
+    .escenario-card { background: var(--surface2); border: 1px solid var(--border2); border-radius: 10px; margin-bottom: .75rem; overflow: hidden; }
+    .escenario-card:last-child { margin-bottom: 0; }
+    .escenario-header { display: flex; align-items: center; gap: .75rem; padding: .7rem 1rem; cursor: pointer; }
+    .escenario-header:hover { background: rgba(255,255,255,.02); }
+    .esc-icon { font-size: .9rem; }
+    .esc-nombre { font-size: .85rem; font-weight: 600; flex: 1; }
+    .esc-body { padding: .6rem 1rem .8rem; border-top: 1px solid var(--border); }
+    .esc-entradas { font-family: var(--mono); font-size: .72rem; color: var(--muted); margin-bottom: .6rem; }
+    .esc-resultados { display: flex; flex-wrap: wrap; gap: .4rem; }
+    .esc-resultado { font-family: var(--mono); font-size: .75rem; padding: .2rem .55rem; border-radius: 5px; }
+    .esc-ok   { background: rgba(74,222,128,.12); color: var(--pass-color); border: 1px solid rgba(74,222,128,.25); }
+    .esc-fail { background: rgba(248,113,113,.12); color: var(--fail-color); border: 1px solid rgba(248,113,113,.25); }
 
     /* ── LADDER ── */
     .ladder-wrap { overflow-x: auto; }
-    .ladder-hint { font-size: .78rem; color: var(--muted); font-family: var(--mono); margin-bottom: 1rem; padding: .55rem .85rem; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); }
+    .ladder-hint { font-size: .74rem; color: var(--muted); font-family: var(--mono); margin-bottom: .9rem; padding: .48rem .75rem; background: var(--surface2); border-radius: 7px; border: 1px solid var(--border); }
     .ladder-hint b { color: var(--in-color); }
-    .state-panel { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.25rem; }
-    .state-btn { font-family: var(--mono); font-size: .8rem; font-weight: 600; padding: .35rem .85rem; border-radius: 7px; border: 1.5px solid var(--border2); background: var(--surface2); color: var(--muted); cursor: pointer; transition: all .18s; display: flex; align-items: center; gap: .4rem; }
-    .state-btn .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); transition: background .18s; }
+    .state-panel { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1rem; }
+    .state-btn { font-family: var(--mono); font-size: .75rem; font-weight: 600; padding: .28rem .68rem; border-radius: 6px; border: 1.5px solid var(--border2); background: var(--surface2); color: var(--muted); cursor: pointer; transition: all .18s; display: flex; align-items: center; gap: .32rem; }
+    .state-btn .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); transition: background .18s; }
     .state-btn.on { border-color: var(--in-color); color: var(--in-color); background: #0c2a3a; }
     .state-btn.on .dot { background: var(--in-color); }
     .ladder-svg { display: block; }
 
-    /* ── RESUMEN TIMERS ── */
-    .timer-cards { display: flex; flex-direction: column; gap: .85rem; }
-    .timer-card { background: var(--surface2); border: 1px solid var(--border2); border-radius: 10px; padding: 1rem 1.25rem; display: flex; gap: 1rem; align-items: flex-start; }
-    .timer-badge { font-family: var(--mono); font-size: .78rem; font-weight: 700; padding: .3rem .7rem; border-radius: 6px; white-space: nowrap; flex-shrink: 0; }
+    /* ── TIMERS ── */
+    .timer-cards { display: flex; flex-direction: column; gap: .7rem; }
+    .timer-card { background: var(--surface2); border: 1px solid var(--border2); border-radius: 9px; padding: .85rem 1rem; display: flex; gap: .8rem; align-items: flex-start; }
+    .timer-badge { font-family: var(--mono); font-size: .73rem; font-weight: 700; padding: .25rem .6rem; border-radius: 5px; white-space: nowrap; flex-shrink: 0; }
     .timer-badge.ton { background: #2a1500; color: var(--ton-color); border: 1px solid #5a3000; }
     .timer-badge.tof { background: #2a0a1a; color: var(--tof-color); border: 1px solid #5a1a3a; }
-    .timer-info { display: flex; flex-direction: column; gap: .3rem; }
-    .timer-nombre { font-family: var(--mono); font-size: .88rem; font-weight: 600; color: var(--text); }
-    .timer-desc { font-size: .82rem; color: var(--muted); line-height: 1.5; }
-    .timer-meta { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: .2rem; }
-    .timer-meta span { font-family: var(--mono); font-size: .75rem; }
-    .timer-cond  { color: var(--in-color); }
-    .timer-time  { color: var(--ton-color); }
-    .timer-salida { color: var(--out-color); }
+    .timer-info { display: flex; flex-direction: column; gap: .25rem; }
+    .timer-nombre { font-family: var(--mono); font-size: .83rem; font-weight: 600; }
+    .timer-desc   { font-size: .77rem; color: var(--muted); line-height: 1.5; }
+    .timer-meta   { display: flex; gap: .8rem; flex-wrap: wrap; margin-top: .12rem; }
+    .timer-cond   { font-family: var(--mono); font-size: .7rem; color: var(--in-color); }
+    .timer-time   { font-family: var(--mono); font-size: .7rem; color: var(--ton-color); }
+    .timer-salida { font-family: var(--mono); font-size: .7rem; color: var(--out-color); }
+
+    /* ── DEP PANEL ── */
+    .dep-panel { display: flex; flex-wrap: wrap; gap: .35rem; padding: .55rem 1.1rem; border-bottom: 1px solid var(--border); background: rgba(129,140,248,.04); }
+    .dep-tag   { font-family: var(--mono); font-size: .68rem; color: var(--accent); background: rgba(129,140,248,.1); border: 1px solid rgba(129,140,248,.2); padding: .14rem .42rem; border-radius: 3px; cursor: pointer; }
+    .dep-label { font-size: .68rem; color: var(--muted); padding-top: .08rem; }
 
     /* ── ERROR ── */
-    .error-box { background: #1a0a0a; border: 1px solid #4a1a1a; border-radius: 12px; padding: 1rem 1.25rem; color: #f87171; font-family: var(--mono); font-size: .88rem; }
+    .error-box { background: #1a0a0a; border: 1px solid #4a1a1a; border-radius: 10px; padding: .85rem 1rem; color: #f87171; font-family: var(--mono); font-size: .82rem; }
 
+    .resumen-texto { color: #b0b4c0; font-size: .92rem; line-height: 1.65; margin-bottom: 1rem; }
     .fade-in { animation: fadeIn .35s ease both; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    @media (max-width: 600px) { .vars-grid { grid-template-columns: 1fr; } .karnaugh-wrap { flex-direction: column; } }
+    @media (max-width: 600px) { .vars-grid { grid-template-columns: 1fr; } .karnaugh-wrap { flex-direction: column; } .stats-grid { grid-template-columns: repeat(2,1fr); } }
   </style>
 </head>
 <body>
-
-<!-- MENÚ LATERAL -->
-<nav class="sidenav" id="sidenav">
-  <div class="sidenav-item" onclick="irA('sec-analisis')">
-    <div class="sidenav-dot"></div>
-    <span class="sidenav-label">Análisis lógico</span>
-  </div>
-  <div class="sidenav-item" onclick="irA('sec-vars')">
-    <div class="sidenav-dot"></div>
-    <span class="sidenav-label">Variables</span>
-  </div>
-  <div class="sidenav-item" onclick="irA('sec-tabla')">
-    <div class="sidenav-dot"></div>
-    <span class="sidenav-label">Tabla de verdad</span>
-  </div>
-  <div class="sidenav-item" onclick="irA('sec-simplificacion')">
-    <div class="sidenav-dot"></div>
-    <span class="sidenav-label">Simplificación</span>
-  </div>
-  <div class="sidenav-item" onclick="irA('ladder-seccion')">
-    <div class="sidenav-dot"></div>
-    <span class="sidenav-label">Diagrama Ladder</span>
-  </div>
-</nav>
-
-<header>
-  <h1>Agente IA</h1>
-  <span>by: Anthony De La Cruz</span>
-</header>
+<nav class="sidenav" id="sidenav"></nav>
+<header><h1>Automatización Industrial</h1><span>Agente IA</span></header>
 
 <div class="input-wrap">
-  <label>Describe tu problema lógico o secuencial</label>
-  <textarea id="txt" placeholder="Ej combinacional: La alarma se activa si hay movimiento Y la puerta está abierta.&#10;Ej secuencial: La bomba arranca 5 segundos después de detectar nivel alto, y sigue 10s después de que baje."></textarea>
+  <label>Describe tu problema — combinacional, secuencial, modular o sistema industrial complejo</label>
+  <textarea id="txt" placeholder="Ej: Sistema de control de destiladora con sensores de seguridad, lógica de arranque, válvulas de despacho y señalización..."></textarea>
   <div class="input-footer">
     <span class="hint">Enter para enviar · Shift+Enter nueva línea</span>
-    <button id="btn" onclick="enviar()"><span>Analizar</span></button>
+    <button class="btn-enviar" id="btn" onclick="enviar()"><span>Analizar</span></button>
   </div>
 </div>
 
 <div id="resultado"></div>
-
-<!-- PANEL FLOTANTE -->
-<div class="state-panel-float" id="state-panel-float">
-  <span class="panel-label">Entradas</span>
-</div>
+<div class="state-panel-float" id="state-panel-float"><span class="panel-label">Entradas</span></div>
 
 <script>
-/* ═══════════════════════════════════════
+/* ═════════════════════════════════════
    ESTADO GLOBAL
-═══════════════════════════════════════ */
-let ladderData  = null;
-let inputStates = {};
+═════════════════════════════════════ */
+let inputStates  = {};
+let ladderActivo = null;
+let ssLadders    = {};
+let capaLadders  = {};
 
 const txt = document.getElementById('txt');
 const btn = document.getElementById('btn');
@@ -247,14 +309,17 @@ txt.addEventListener('keydown', e => {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviar(); }
 });
 
+/* ═════════════════════════════════════
+   ENVÍO
+═════════════════════════════════════ */
 async function enviar() {
   const mensaje = txt.value.trim();
   if (!mensaje) return;
   btn.disabled = true;
   btn.innerHTML = '<div class="spinner"></div><span>Analizando...</span>';
   res.style.display = 'none';
-  ladderData  = null;
-  inputStates = {};
+  inputStates = {}; ladderActivo = null; ssLadders = {}; capaLadders = {};
+  document.getElementById('sidenav').innerHTML = '';
   document.getElementById('sidenav').classList.remove('visible');
 
   try {
@@ -269,47 +334,416 @@ async function enviar() {
     if (data.error) {
       res.innerHTML = `<div class="error-box fade-in">⚠ ${data.error}</div>`;
     } else {
-      // Inicializar estados según tipo
-      const entradas = data.entradas || [];
-      entradas.forEach(v => { inputStates[v] = 0; });
-
-      if (data.tipo === 'combinacional') {
-        ladderData = data.ladder || null;
-      } else {
-        ladderData = data.ladder_secuencial || null;
+      if (data.tipo === 'capas') {
+        (data.entradas || []).forEach(e => { inputStates[e.id] = 0; });
+        data.capas.forEach(c => { capaLadders[c.id] = c.escalones_ladder || []; });
+        res.innerHTML = renderCapas(data);
+      } else if (data.tipo === 'modular') {
+        (data.subsistemas || []).forEach(ss => {
+          (ss.entradas || []).forEach(v => { inputStates[v] = 0; });
+          if (ss.ladder) ssLadders[ss.id] = ss.ladder;
+        });
+        window._ssData = data.subsistemas;
+        res.innerHTML  = renderModular(data);
+      } else if (data.tipo === 'combinacional') {
+        (data.entradas || []).forEach(v => { inputStates[v] = 0; });
+        ladderActivo = data.ladder || null;
+        res.innerHTML = renderCombinacional(data);
+      } else if (data.tipo === 'secuencial') {
+        (data.entradas || []).forEach(v => { inputStates[v] = 0; });
+        ladderActivo = data.ladder_secuencial || null;
+        res.innerHTML = renderSecuencial(data);
       }
-
-      res.innerHTML = data.tipo === 'combinacional'
-        ? renderCombinacional(data)
-        : renderSecuencial(data);
-
-      construirPanelFlotante(entradas);
-      setTimeout(() => { initSidenav(); initFloatPanel(); }, 100);
+      construirPanelFlotante(Object.keys(inputStates));
+      setTimeout(() => { initSidenav(); initFloatPanel(); }, 120);
     }
     res.style.display = 'block';
   } catch(e) {
     res.innerHTML = `<div class="error-box fade-in">⚠ Error de conexión: ${e.message}</div>`;
     res.style.display = 'block';
   }
-
   btn.disabled = false;
   btn.innerHTML = '<span>Analizar</span>';
 }
 
-/* ═══════════════════════════════════════
-   RAMA COMBINACIONAL
-═══════════════════════════════════════ */
-function renderCombinacional(d) {
-  return renderResumen(d)
-       + renderVars(d)
-       + renderTablaVerdad(d)
-       + renderSimplificacion(d)
-       + renderLadderCombinacional(d);
+/* ═════════════════════════════════════
+   RENDER — CAPAS
+═════════════════════════════════════ */
+function renderCapas(d) {
+  return renderVistaGeneralCapas(d)
+       + renderIOTablas(d)
+       + renderVariablesInternas(d)
+       + d.capas.map(c => renderCapa(c)).join('')
+       + renderValidacion(d.validacion);
 }
 
-/* ── RESUMEN ── */
-function renderResumen(d) {
-  const exprs = d.salidas.map(s => `
+function renderVistaGeneralCapas(d) {
+  const e = d.estadisticas || {};
+  const stats = [
+    {v: e.total_capas     || 0, l: 'Capas'},
+    {v: e.total_entradas  || 0, l: 'Entradas'},
+    {v: e.total_salidas   || 0, l: 'Salidas'},
+    {v: e.vars_internas   || 0, l: 'Vars internas'},
+    {v: e.total_escalones || 0, l: 'Escalones'},
+    {v: e.bobinas_set_reset   || 0, l: 'Set/Reset'},
+    {v: e.exclusiones_mutuas  || 0, l: 'Excl. mutua'},
+  ].map(s => `<div class="stat-card"><span class="stat-val">${s.v}</span><span class="stat-lbl">${s.l}</span></div>`).join('');
+
+  const mapa = (d.capas || []).map(c => {
+    const pClass = `prio-${c.prioridad||1}`;
+    const nSal   = (c.salidas||[]).length;
+    const nEnt   = (c.entradas_usadas||[]).length;
+    return `
+      <div class="mapa-item" onclick="irA('sec-${c.id}')">
+        <span class="badge-prio ${pClass}">C${c.prioridad} · ${c.nombre}</span>
+        <div class="mapa-info">
+          <div class="mapa-desc">${c.descripcion||''}</div>
+          <div class="mapa-vars">${nEnt} entradas usadas · ${nSal} salidas</div>
+        </div>
+        <span class="mapa-arrow">→</span>
+      </div>`;
+  }).join('');
+
+  const val = d.validacion || {};
+  const valBadge = val.total > 0
+    ? `<span class="val-stat val-pass">✓ ${val.aprobados}/${val.total} escenarios OK</span>`
+    : '';
+
+  return `
+    <div class="seccion fade-in" id="sec-general">
+      <div class="seccion-header" onclick="toggleSeccion('general')">
+        <div class="header-left"><span style="font-size:.75rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)">Sistema complejo · por capas</span>${valBadge}</div>
+        <span class="collapse-icon">▾</span>
+      </div>
+      <div class="seccion-content" id="content-general">
+        <div class="seccion-body">
+          <p class="resumen-texto">${d.resumen_general||''}</p>
+          <div class="stats-grid">${stats}</div>
+          <div class="mapa-lista">${mapa}</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderIOTablas(d) {
+  const entradas = d.entradas || [];
+  const salidas  = d.salidas  || [];
+
+  const rowsE = entradas.map(e => `
+    <tr>
+      <td class="io-id">${e.id||''}</td>
+      <td>${e.nombre||''}</td>
+      <td class="io-tipo">${e.tipo||''}</td>
+    </tr>`).join('');
+
+  const rowsS = salidas.map(s => `
+    <tr>
+      <td class="io-id-q">${s.id||''}</td>
+      <td>${s.nombre||''}</td>
+      <td class="io-tipo">${s.tipo||''}</td>
+    </tr>`).join('');
+
+  return `
+    <div class="seccion fade-in" id="sec-io">
+      <div class="seccion-header" onclick="toggleSeccion('io')">
+        <div class="header-left"><span style="font-size:.75rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)">Entradas y salidas del sistema</span></div>
+        <span class="collapse-icon">▾</span>
+      </div>
+      <div class="seccion-content" id="content-io">
+        <div class="seccion-body" style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+          <div>
+            <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--in-color);margin-bottom:.6rem">Entradas (${entradas.length})</div>
+            <div class="tabla-scroll"><table class="io-table"><thead><tr><th>ID</th><th>Descripción</th><th>Tipo</th></tr></thead><tbody>${rowsE||'<tr><td colspan="3" style="color:var(--muted)">—</td></tr>'}</tbody></table></div>
+          </div>
+          <div>
+            <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--out-color);margin-bottom:.6rem">Salidas (${salidas.length})</div>
+            <div class="tabla-scroll"><table class="io-table"><thead><tr><th>ID</th><th>Descripción</th><th>Tipo</th></tr></thead><tbody>${rowsS||'<tr><td colspan="3" style="color:var(--muted)">—</td></tr>'}</tbody></table></div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderVariablesInternas(d) {
+  const vis = d.variables_internas || [];
+  if (vis.length === 0) return '';
+  const items = vis.map(vi => `
+    <div class="vi-item">
+      <div class="vi-id">${vi.id}</div>
+      <div class="vi-expr">${vi.expresion_display||''}</div>
+      <div class="vi-desc">${vi.descripcion||''}</div>
+    </div>`).join('');
+  return `
+    <div class="seccion fade-in" id="sec-vars-int">
+      <div class="seccion-header" onclick="toggleSeccion('vars-int')">
+        <div class="header-left"><span style="font-size:.75rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)">Variables internas</span></div>
+        <span class="collapse-icon">▾</span>
+      </div>
+      <div class="seccion-content" id="content-vars-int">
+        <div class="seccion-body"><div class="vi-lista">${items}</div></div>
+      </div>
+    </div>`;
+}
+
+function renderCapa(c) {
+  const pClass = `prio-${c.prioridad||1}`;
+  const pLabel = ['','SEGURIDAD','HABILITACIÓN','ACTUADORES','DESPACHO','SEÑALIZACIÓN'][c.prioridad] || `P${c.prioridad}`;
+
+  // Expresiones de salidas
+  const exprs = (c.salidas||[]).map(s => {
+    const tipo = s.tipo || 'normal';
+    let lineas = '';
+    if (tipo === 'set_reset') {
+      lineas = `
+        <div class="expr-linea"><span class="etiqueta">SET</span><span class="formula formula-set">${s.condicion_set_display||''}</span></div>
+        <div class="expr-linea"><span class="etiqueta">RESET</span><span class="formula formula-rst">${s.condicion_reset_display||''}</span></div>`;
+    } else {
+      lineas = `<div class="expr-linea"><span class="etiqueta">expr.</span><span class="formula formula-simple">${s.expresion_display||''}</span></div>`;
+    }
+    const tipoBadge = tipo==='set_reset' ? '<span class="badge-tipo bt-set">SET/RST</span>'
+                    : tipo==='exclusion_mutua' ? '<span class="badge-tipo bt-excl">EXCL. MUTUA</span>'
+                    : '<span class="badge-tipo bt-norm">NORMAL</span>';
+    return `
+      <div class="expr-fila">
+        <span class="expr-nombre">${s.id||s.nombre||''}</span>
+        <div class="expr-detalles">
+          <div class="expr-linea">${tipoBadge}<span style="font-size:.72rem;color:var(--muted)">${s.descripcion||''}</span></div>
+          ${lineas}
+        </div>
+      </div>`;
+  }).join('');
+
+  // Ladder de la capa
+  const escalones = c.escalones_ladder || [];
+  const ladderSVG = escalones.length > 0
+    ? dibujarLadderCapas(escalones, c.id)
+    : '<p style="color:var(--muted);font-size:.82rem">Sin escalones generados.</p>';
+
+  // Variantes
+  const variantes = (c.variantes||[]).map(v =>
+    `<div style="font-family:var(--mono);font-size:.75rem;color:var(--ton-color);background:rgba(251,146,60,.08);border:1px solid rgba(251,146,60,.2);border-radius:6px;padding:.35rem .7rem;margin-bottom:.5rem"><b>${v.id}</b> — ${v.descripcion}</div>`
+  ).join('');
+
+  // Entradas usadas
+  const entUsadas = (c.entradas_usadas||[]).map(v =>
+    `<span class="badge badge-in">${v}</span>`).join('');
+  const salPrevias = (c.salidas_previas_usadas||[]).map(v =>
+    `<span class="badge badge-int">${v}</span>`).join('');
+  const exclMutua  = (c.exclusion_mutua||[]).map(v =>
+    `<span class="badge badge-out">${v}</span>`).join('');
+
+  return `
+    <div class="seccion fade-in" id="sec-${c.id}">
+      <div class="seccion-header" onclick="toggleSeccion('${c.id}')">
+        <div class="header-left">
+          <span class="badge-prio ${pClass}">C${c.prioridad} · ${pLabel}</span>
+          <span style="color:var(--text);font-size:.86rem;font-weight:700">${c.nombre}</span>
+        </div>
+        <span class="collapse-icon">▾</span>
+      </div>
+      <div class="seccion-content" id="content-${c.id}">
+        <div class="seccion-body">
+          <p class="resumen-texto" style="margin-bottom:.9rem">${c.descripcion||''}</p>
+          ${variantes}
+          ${entUsadas || salPrevias ? `
+            <div style="display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem">
+              ${entUsadas ? `<div><div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.07em;color:var(--in-color);margin-bottom:.3rem">Entradas usadas</div><div class="badges">${entUsadas}</div></div>` : ''}
+              ${salPrevias ? `<div><div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.07em;color:var(--accent);margin-bottom:.3rem">Señales de capas anteriores</div><div class="badges">${salPrevias}</div></div>` : ''}
+              ${exclMutua ? `<div><div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.07em;color:var(--excl-color);margin-bottom:.3rem">Exclusión mutua</div><div class="badges">${exclMutua}</div></div>` : ''}
+            </div>` : ''}
+          <div class="expr-bloque">${exprs}</div>
+          <div class="seccion" style="margin-top:1rem;margin-bottom:0">
+            <div class="seccion-header" onclick="toggleSeccion('lad-${c.id}')">
+              <span style="font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)">Ladder — ${c.nombre}</span>
+              <span class="collapse-icon">▾</span>
+            </div>
+            <div class="seccion-content" id="content-lad-${c.id}">
+              <div class="seccion-body" style="padding:.9rem">
+                <div class="ladder-hint"><b>Clic</b> en entradas para simular · Rojo=inactivo · Verde=activo</div>
+                <div class="state-panel" id="panel-capa-${c.id}">
+                  ${(c.entradas_usadas||[]).map(v=>`<button class="state-btn" id="sbtn-${c.id}-${v}" onclick="toggleInputCapa('${c.id}','${v}')"><span class="dot"></span>${v}</button>`).join('')}
+                </div>
+                <div class="ladder-wrap" id="ladder-capa-${c.id}">${ladderSVG}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderValidacion(val) {
+  if (!val || !val.escenarios || val.escenarios.length === 0) return '';
+  const resumen = `
+    <div class="val-resumen">
+      <span class="val-stat val-total">Total: ${val.total}</span>
+      <span class="val-stat val-pass">✓ Aprobados: ${val.aprobados}</span>
+      ${val.fallidos > 0 ? `<span class="val-stat val-fail">✗ Fallidos: ${val.fallidos}</span>` : ''}
+    </div>`;
+
+  const cards = val.escenarios.map((esc, i) => {
+    const ok   = esc.aprobado;
+    const icon = ok ? '✓' : '✗';
+    const color = ok ? 'var(--pass-color)' : 'var(--fail-color)';
+    const entStr = Object.entries(esc.entradas||{}).map(([k,v])=>`${k}=${v}`).join(', ');
+    const resultados = (esc.resultados||[]).map(r => {
+      const cls = r.ok ? 'esc-ok' : 'esc-fail';
+      return `<span class="esc-resultado ${cls}">${r.salida}: esp=${r.esperado} obt=${r.obtenido} ${r.ok?'✓':'✗'}</span>`;
+    }).join('');
+    return `
+      <div class="escenario-card">
+        <div class="escenario-header" onclick="toggleEscenario(${i})">
+          <span class="esc-icon" style="color:${color}">${icon}</span>
+          <span class="esc-nombre">${esc.nombre}</span>
+          <span style="font-family:var(--mono);font-size:.68rem;color:${color}">${ok?'PASS':'FAIL'}</span>
+        </div>
+        <div class="esc-body" id="esc-body-${i}" style="display:none">
+          <div class="esc-entradas">Entradas: ${entStr||'—'}</div>
+          <div class="esc-resultados">${resultados}</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="seccion fade-in" id="sec-validacion">
+      <div class="seccion-header" onclick="toggleSeccion('validacion')">
+        <div class="header-left"><span style="font-size:.75rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)">Validación de escenarios críticos</span></div>
+        <span class="collapse-icon">▾</span>
+      </div>
+      <div class="seccion-content" id="content-validacion">
+        <div class="seccion-body">${resumen}${cards}</div>
+      </div>
+    </div>`;
+}
+
+function toggleEscenario(i) {
+  const body = document.getElementById(`esc-body-${i}`);
+  if (body) body.style.display = body.style.display === 'none' ? 'block' : 'none';
+}
+
+/* ═════════════════════════════════════
+   RENDER — MODULAR
+═════════════════════════════════════ */
+function renderModular(d) {
+  return renderVistaGeneralModular(d)
+       + (d.subsistemas||[]).map(ss => renderSubsistema(ss)).join('');
+}
+
+function renderVistaGeneralModular(d) {
+  const e = d.estadisticas || {};
+  const stats = [
+    {v: d.subsistemas.length, l:'Subsistemas'},
+    {v: e.total_entradas||0,  l:'Entradas'},
+    {v: e.total_salidas||0,   l:'Salidas'},
+    {v: e.total_escalones||0, l:'Escalones'},
+    {v: (e.por_prioridad||{}).emergencia||0,  l:'Emergencia'},
+    {v: (e.por_prioridad||{}).advertencia||0, l:'Advertencia'},
+    {v: e.dependencias||0,    l:'Dependencias'},
+  ].map(s=>`<div class="stat-card"><span class="stat-val">${s.v}</span><span class="stat-lbl">${s.l}</span></div>`).join('');
+
+  const mapa = (d.subsistemas||[]).map(ss => {
+    const pc = `prio-${ss.prioridad||3}`;
+    const pl = ss.prioridad===1?'EMERGENCIA':ss.prioridad===2?'ADVERTENCIA':'OPERACIÓN';
+    return `
+      <div class="mapa-item" onclick="irA('sec-${ss.id}')">
+        <span class="badge-prio ${pc}">P${ss.prioridad} · ${pl}</span>
+        <div class="mapa-info">
+          <div class="mapa-nombre">${ss.nombre||''}</div>
+          <div class="mapa-desc">${ss.descripcion||''}</div>
+          <div class="mapa-vars">${(ss.entradas||[]).length} entradas · ${(ss.salidas||[]).length} salidas</div>
+        </div>
+        <span class="mapa-arrow">→</span>
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="seccion fade-in" id="sec-general">
+      <div class="seccion-header" onclick="toggleSeccion('general')">
+        <div class="header-left"><span style="font-size:.75rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)">Vista general del sistema</span></div>
+        <span class="collapse-icon">▾</span>
+      </div>
+      <div class="seccion-content" id="content-general">
+        <div class="seccion-body">
+          <p class="resumen-texto" style="margin-bottom:1.1rem">${d.resumen_general||''}</p>
+          <div class="stats-grid">${stats}</div>
+          <div class="mapa-lista">${mapa}</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderSubsistema(ss) {
+  const pc  = `prio-${ss.prioridad||3}`;
+  const pl  = ss.prioridad===1?'EMERGENCIA':ss.prioridad===2?'ADVERTENCIA':'OPERACIÓN';
+  const deps = (ss.depende_de||[]).length > 0
+    ? `<div class="dep-panel"><span class="dep-label">Depende de:</span>${ss.depende_de.map(d=>`<span class="dep-tag" onclick="irA('sec-${d}')">${d}</span>`).join('')}</div>` : '';
+  const ext = ss.entradas_externas
+    ? `<div class="dep-panel"><span class="dep-label">Señales externas:</span>${Object.entries(ss.entradas_externas).map(([v,o])=>`<span class="dep-tag" title="Viene de ${o}">${v} ← ${o}</span>`).join('')}</div>` : '';
+
+  const exprs = (ss.salidas||[]).map(s => `
+    <div class="expr-fila">
+      <span class="expr-nombre">${s.nombre||''}</span>
+      <div class="expr-detalles">
+        <div class="expr-linea"><span class="etiqueta">inferida</span><span class="formula formula-inferida">${s.expresion_display||''}</span></div>
+        ${s.expresion_canonica?`<div class="expr-linea"><span class="etiqueta">canónica</span><span class="formula formula-canonica">${s.expresion_canonica}</span></div>`:''}
+        ${s.expresion_simplificada?`<div class="expr-linea"><span class="etiqueta">simplif.</span><span class="formula formula-simple">${s.expresion_simplificada}</span></div>`:''}
+        <div class="expr-desc">${s.descripcion||''}</div>
+      </div>
+    </div>`).join('');
+
+  const bIn  = (ss.entradas||[]).map(v=>{const ex=ss.entradas_externas&&ss.entradas_externas[v];return`<span class="badge ${ex?'badge-ext':'badge-in'}">${v}${ex?' ↗':''}</span>`;}).join('');
+  const bOut = (ss.salidas||[]).map(s=>`<span class="badge badge-out">${s.nombre}</span>`).join('');
+
+  const nombres = (ss.salidas||[]).map(s=>s.nombre);
+  const tablaHTML = ss.tabla ? (() => {
+    const thIn  = (ss.entradas||[]).map(v=>`<th class="col-in">${v}</th>`).join('');
+    const thOut = nombres.map(n=>`<th class="col-out">${n}</th>`).join('');
+    const vis   = ss.tabla.length > 32 ? ss.tabla.slice(0,32) : ss.tabla;
+    const filas = vis.map(fila=>{
+      const tdI = (ss.entradas||[]).map(v=>`<td class="${fila[v]===1?'val-1-in':'val-0-in'}">${fila[v]}</td>`).join('');
+      const tdO = nombres.map(n=>`<td class="col-out ${fila[n]===1?'val-1-out':'val-0-out'}">${fila[n]===-1?'?':fila[n]}</td>`).join('');
+      return `<tr>${tdI}<td class="sep-col"></td>${tdO}</tr>`;
+    }).join('');
+    return `<div class="seccion" style="margin-bottom:1rem"><div class="seccion-header" onclick="toggleSeccion('tbl-${ss.id}')"><span style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)">Tabla de verdad</span><div style="display:flex;align-items:center;gap:.7rem"><span style="font-family:var(--mono);font-size:.68rem;color:var(--muted)">${ss.tabla.length} filas</span><span class="collapse-icon">▾</span></div></div><div class="seccion-content" id="content-tbl-${ss.id}"><div class="tabla-scroll"><table><thead><tr>${thIn}<th class="sep-col"></th>${thOut}</tr></thead><tbody>${filas}</tbody></table>${ss.tabla.length>32?`<div style="padding:.5rem 1rem;font-family:var(--mono);font-size:.68rem;color:var(--muted)">Mostrando 32 de ${ss.tabla.length} filas</div>`:''}</div></div></div>`;
+  })() : '';
+
+  const simplif = (ss.salidas||[]).map((s,idx)=>{
+    if (!s.expresion_simplificada) return '';
+    const badge = s.metodo==='karnaugh'?'<span class="metodo-badge metodo-kmap">Karnaugh</span>':'<span class="metodo-badge metodo-quine">Quine-McCluskey</span>';
+    const cont  = s.metodo==='karnaugh'?renderKarnaugh(s):renderQuine(s);
+    return `<div class="seccion" style="margin-bottom:1rem"><div class="seccion-header" onclick="toggleSeccion('sm-${ss.id}-${idx}')"><div class="header-left"><span style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)">Simplificación — ${s.nombre}</span>${badge}</div><span class="collapse-icon">▾</span></div><div class="seccion-content" id="content-sm-${ss.id}-${idx}"><div class="seccion-body"><div class="salida-titulo">${s.nombre} = ${s.expresion_simplificada}</div>${cont}</div></div></div>`;
+  }).join('');
+
+  const botones = (ss.entradas||[]).map(v=>`<button class="state-btn" id="sbtn-${ss.id}-${v}" onclick="toggleInputSS('${ss.id}','${v}')"><span class="dot"></span>${v}</button>`).join('');
+  const ladderHTML = ss.ladder
+    ? `<div class="seccion" style="margin-bottom:0"><div class="seccion-header" onclick="toggleSeccion('lad-${ss.id}')"><span style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)">Diagrama Ladder</span><span class="collapse-icon">▾</span></div><div class="seccion-content" id="content-lad-${ss.id}"><div class="seccion-body" style="padding:.9rem"><div class="ladder-hint"><b>Clic</b> en entradas para simular</div><div class="state-panel" id="panel-inline-${ss.id}">${botones}</div><div class="ladder-wrap" id="ladder-svg-${ss.id}">${dibujarLadderCombinacional(ss.ladder, ss.entradas||[])}</div></div></div></div>` : '';
+
+  const contenido = ss.error
+    ? `<div class="seccion-body"><div class="error-box">${ss.error}</div></div>`
+    : `${deps}${ext}<div class="seccion-body">
+         <div class="vars-grid" style="margin-bottom:1rem">
+           <div class="var-card entradas"><h3>Entradas (${(ss.entradas||[]).length})</h3><div class="badges">${bIn||'—'}</div></div>
+           <div class="var-card salidas"><h3>Salidas (${(ss.salidas||[]).length})</h3><div class="badges">${bOut||'—'}</div></div>
+         </div>
+         <div class="expr-bloque" style="margin-bottom:1rem">${exprs}</div>
+         ${tablaHTML}${simplif}${ladderHTML}
+       </div>`;
+
+  return `
+    <div class="seccion fade-in" id="sec-${ss.id}">
+      <div class="seccion-header" onclick="toggleSeccion('${ss.id}')">
+        <div class="header-left"><span class="badge-prio ${pc}">P${ss.prioridad} · ${pl}</span><span style="color:var(--text);font-size:.86rem;font-weight:700">${ss.nombre||''}</span></div>
+        <span class="collapse-icon">▾</span>
+      </div>
+      <div class="seccion-content" id="content-${ss.id}">${contenido}</div>
+    </div>`;
+}
+
+/* ═════════════════════════════════════
+   RENDER — COMBINACIONAL
+═════════════════════════════════════ */
+function renderCombinacional(d) {
+  const exprs = (d.salidas||[]).map(s=>`
     <div class="expr-fila">
       <span class="expr-nombre">${s.nombre}</span>
       <div class="expr-detalles">
@@ -319,527 +753,495 @@ function renderResumen(d) {
         <div class="expr-desc">${s.descripcion}</div>
       </div>
     </div>`).join('');
-  return `
-    <div class="seccion fade-in" id="sec-analisis">
-      <div class="seccion-header"><span>Análisis lógico</span></div>
-      <div class="seccion-body"><p class="resumen-texto">${d.resumen}</p><div class="expr-bloque">${exprs}</div></div>
-    </div>`;
-}
-
-/* ── VARIABLES ── */
-function renderVars(d) {
-  const bIn  = d.entradas.map(v => `<span class="badge badge-in">${v}</span>`).join('');
-  const bOut = d.salidas.map(s => `<span class="badge badge-out">${s.nombre}</span>`).join('');
-  return `
-    <div class="vars-grid fade-in" id="sec-vars">
-      <div class="var-card entradas"><h3>Entradas (${d.entradas.length})</h3><div class="badges">${bIn}</div></div>
-      <div class="var-card salidas"><h3>Salidas (${d.salidas.length})</h3><div class="badges">${bOut}</div></div>
-    </div>`;
-}
-
-/* ── TABLA DE VERDAD ── */
-function renderTablaVerdad(d) {
-  const nombres = d.salidas.map(s => s.nombre);
-  const thIn  = d.entradas.map(v => `<th class="col-in">${v}</th>`).join('');
-  const thOut = nombres.map(n => `<th class="col-out">${n}</th>`).join('');
-  const filas = d.tabla.map(fila => {
-    const tdIn  = d.entradas.map(v => `<td class="${fila[v]===1?'val-1-in':'val-0-in'}">${fila[v]}</td>`).join('');
-    const tdOut = nombres.map(n => `<td class="col-out ${fila[n]===1?'val-1-out':'val-0-out'}">${fila[n]===-1?'?':fila[n]}</td>`).join('');
-    return `<tr>${tdIn}<td class="sep-col"></td>${tdOut}</tr>`;
+  const bIn  = (d.entradas||[]).map(v=>`<span class="badge badge-in">${v}</span>`).join('');
+  const bOut = (d.salidas||[]).map(s=>`<span class="badge badge-out">${s.nombre}</span>`).join('');
+  const nombres = (d.salidas||[]).map(s=>s.nombre);
+  const thIn  = (d.entradas||[]).map(v=>`<th class="col-in">${v}</th>`).join('');
+  const thOut = nombres.map(n=>`<th class="col-out">${n}</th>`).join('');
+  const filas = (d.tabla||[]).map(fila=>{
+    const tdI=(d.entradas||[]).map(v=>`<td class="${fila[v]===1?'val-1-in':'val-0-in'}">${fila[v]}</td>`).join('');
+    const tdO=nombres.map(n=>`<td class="col-out ${fila[n]===1?'val-1-out':'val-0-out'}">${fila[n]===-1?'?':fila[n]}</td>`).join('');
+    return `<tr>${tdI}<td class="sep-col"></td>${tdO}</tr>`;
   }).join('');
-  return `
-    <div class="seccion fade-in" id="sec-tabla">
-      <div class="seccion-header">
-        <span>Tabla de verdad</span>
-        <span style="font-family:var(--mono);font-size:.72rem;color:var(--muted)">${d.tabla.length} filas · ${d.entradas.length + nombres.length} columnas</span>
-      </div>
-      <div class="tabla-scroll"><table><thead><tr>${thIn}<th class="sep-col"></th>${thOut}</tr></thead><tbody>${filas}</tbody></table></div>
-    </div>`;
-}
-
-/* ── SIMPLIFICACIÓN ── */
-function renderSimplificacion(d) {
-  return d.salidas.map((s, idx) => {
-    const badge = s.metodo === 'karnaugh'
-      ? '<span class="metodo-badge metodo-kmap">Mapa de Karnaugh</span>'
-      : '<span class="metodo-badge metodo-quine">Quine-McCluskey</span>';
-    const contenido = s.metodo === 'karnaugh' ? renderKarnaugh(s) : renderQuine(s);
-    const secId = idx === 0 ? 'id="sec-simplificacion"' : '';
-    return `
-      <div class="seccion fade-in" ${secId}>
-        <div class="seccion-header"><span>Simplificación — ${s.nombre}</span>${badge}</div>
-        <div class="seccion-body">
-          <div class="salida-titulo">${s.nombre} = ${s.expresion_simplificada}</div>
-          ${contenido}
-        </div>
-      </div>`;
+  const simplif = (d.salidas||[]).map((s,i)=>{
+    const badge=s.metodo==='karnaugh'?'<span class="metodo-badge metodo-kmap">Karnaugh</span>':'<span class="metodo-badge metodo-quine">Quine-McCluskey</span>';
+    const cont=s.metodo==='karnaugh'?renderKarnaugh(s):renderQuine(s);
+    const sid=i===0?'id="sec-simplificacion"':'';
+    return `<div class="seccion fade-in" ${sid}><div class="seccion-header" onclick="toggleSeccion('s${i}')"><div class="header-left"><span style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)">Simplificación — ${s.nombre}</span>${badge}</div><span class="collapse-icon">▾</span></div><div class="seccion-content" id="content-s${i}"><div class="seccion-body"><div class="salida-titulo">${s.nombre} = ${s.expresion_simplificada}</div>${cont}</div></div></div>`;
   }).join('');
-}
-
-/* ── LADDER COMBINACIONAL ── */
-function renderLadderCombinacional(d) {
-  if (!d.ladder || !d.ladder.salidas || d.ladder.salidas.length === 0) return '';
-  const botones = d.entradas.map(v => `
-    <button class="state-btn" id="sbtn-${v}" onclick="toggleInput('${v}')">
-      <span class="dot"></span>${v}
-    </button>`).join('');
+  const botones=(d.entradas||[]).map(v=>`<button class="state-btn" id="sbtn-${v}" onclick="toggleInput('${v}')"><span class="dot"></span>${v}</button>`).join('');
   return `
-    <div class="seccion fade-in" id="ladder-seccion">
-      <div class="seccion-header">
-        <span>Diagrama Ladder</span>
-        <span style="font-family:var(--mono);font-size:.7rem;color:var(--muted)">combinacional · interactivo</span>
-      </div>
-      <div class="seccion-body">
-        <div class="ladder-hint"><b>Haz clic</b> en los botones de entrada para activar/desactivar · Los contactos y bobinas se actualizan en tiempo real</div>
-        <div class="state-panel" id="state-panel-inline">${botones}</div>
-        <div class="ladder-wrap" id="ladder-svg-wrap">${dibujarLadderCombinacional(d.ladder, d.entradas)}</div>
-      </div>
-    </div>`;
+    <div class="seccion fade-in" id="sec-analisis"><div class="seccion-header"><span style="font-size:.75rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)">Análisis lógico</span></div><div class="seccion-body"><p class="resumen-texto">${d.resumen||''}</p><div class="expr-bloque">${exprs}</div></div></div>
+    <div class="vars-grid fade-in" id="sec-vars"><div class="var-card entradas"><h3>Entradas (${(d.entradas||[]).length})</h3><div class="badges">${bIn}</div></div><div class="var-card salidas"><h3>Salidas (${(d.salidas||[]).length})</h3><div class="badges">${bOut}</div></div></div>
+    <div class="seccion fade-in" id="sec-tabla"><div class="seccion-header" onclick="toggleSeccion('tc')"><span style="font-size:.75rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)">Tabla de verdad</span><div style="display:flex;align-items:center;gap:.7rem"><span style="font-family:var(--mono);font-size:.7rem;color:var(--muted)">${(d.tabla||[]).length} filas</span><span class="collapse-icon">▾</span></div></div><div class="seccion-content" id="content-tc"><div class="tabla-scroll"><table><thead><tr>${thIn}<th class="sep-col"></th>${thOut}</tr></thead><tbody>${filas}</tbody></table></div></div></div>
+    ${simplif}
+    <div class="seccion fade-in" id="ladder-seccion"><div class="seccion-header"><span style="font-size:.75rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)">Diagrama Ladder · combinacional</span></div><div class="seccion-body"><div class="ladder-hint"><b>Clic</b> en entradas para simular</div><div class="state-panel" id="state-panel-inline">${botones}</div><div class="ladder-wrap" id="ladder-svg-wrap">${dibujarLadderCombinacional(d.ladder, d.entradas||[])}</div></div></div>`;
 }
 
-/* ═══════════════════════════════════════
-   RAMA SECUENCIAL
-═══════════════════════════════════════ */
+/* ═════════════════════════════════════
+   RENDER — SECUENCIAL
+═════════════════════════════════════ */
 function renderSecuencial(d) {
-  return renderResumenSecuencial(d)
-       + renderVarsSecuencial(d)
-       + renderResumenTimers(d)
-       + renderLadderSecuencial(d);
-}
-
-/* ── RESUMEN SECUENCIAL ── */
-function renderResumenSecuencial(d) {
+  const bIn =(d.entradas||[]).map(v=>`<span class="badge badge-in">${v}</span>`).join('');
+  const bOut=(d.salidas||[]).map(v=>`<span class="badge badge-out">${v}</span>`).join('');
+  const cards=(d.resumen_timers||[]).map(t=>`<div class="timer-card"><span class="timer-badge ${t.tipo.toLowerCase()}">${t.tipo}</span><div class="timer-info"><span class="timer-nombre">${t.nombre}</span><span class="timer-desc">${t.descripcion}</span><div class="timer-meta"><span class="timer-cond">↳ ${t.condicion}</span><span class="timer-time">⏱ ${t.tiempo_display}</span><span class="timer-salida">→ ${t.salida}</span></div></div></div>`).join('');
+  const botones=(d.entradas||[]).map(v=>`<button class="state-btn" id="sbtn-${v}" onclick="toggleInput('${v}')"><span class="dot"></span>${v}</button>`).join('');
   return `
-    <div class="seccion fade-in" id="sec-analisis">
-      <div class="seccion-header"><span>Análisis del proceso</span><span style="font-family:var(--mono);font-size:.7rem;color:var(--muted)">secuencial</span></div>
-      <div class="seccion-body"><p class="resumen-texto">${d.resumen}</p></div>
-    </div>`;
+    <div class="seccion fade-in" id="sec-analisis"><div class="seccion-header"><span style="font-size:.75rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)">Análisis · secuencial</span></div><div class="seccion-body"><p class="resumen-texto">${d.resumen||''}</p></div></div>
+    <div class="vars-grid fade-in" id="sec-vars"><div class="var-card entradas"><h3>Entradas</h3><div class="badges">${bIn||'—'}</div></div><div class="var-card salidas"><h3>Salidas</h3><div class="badges">${bOut||'—'}</div></div></div>
+    <div class="seccion fade-in" id="sec-simplificacion"><div class="seccion-header"><span style="font-size:.75rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)">Temporizadores</span></div><div class="seccion-body"><div class="timer-cards">${cards}</div></div></div>
+    <div class="seccion fade-in" id="ladder-seccion"><div class="seccion-header"><span style="font-size:.75rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)">Diagrama Ladder · secuencial</span></div><div class="seccion-body"><div class="ladder-hint"><b>Clic</b> en entradas para simular</div><div class="state-panel" id="state-panel-inline">${botones}</div><div class="ladder-wrap" id="ladder-svg-wrap">${dibujarLadderSecuencial(d.ladder_secuencial)}</div></div></div>`;
 }
 
-/* ── VARIABLES SECUENCIAL ── */
-function renderVarsSecuencial(d) {
-  const bIn  = (d.entradas || []).map(v => `<span class="badge badge-in">${v}</span>`).join('');
-  const bOut = (d.salidas  || []).map(v => `<span class="badge badge-out">${v}</span>`).join('');
-  const bTon = (d.resumen_timers || []).filter(t => t.tipo === 'TON').map(t => `<span class="badge badge-ton">${t.nombre}</span>`).join('');
-  const bTof = (d.resumen_timers || []).filter(t => t.tipo === 'TOF').map(t => `<span class="badge badge-tof">${t.nombre}</span>`).join('');
-  return `
-    <div class="vars-grid fade-in" id="sec-vars" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">
-      <div class="var-card entradas"><h3>Entradas (${(d.entradas||[]).length})</h3><div class="badges">${bIn || '<span style="color:var(--muted);font-size:.8rem">—</span>'}</div></div>
-      <div class="var-card salidas"><h3>Salidas (${(d.salidas||[]).length})</h3><div class="badges">${bOut || '<span style="color:var(--muted);font-size:.8rem">—</span>'}</div></div>
-      ${bTon ? `<div class="var-card"><h3 style="color:var(--ton-color)">TON</h3><div class="badges">${bTon}</div></div>` : ''}
-      ${bTof ? `<div class="var-card"><h3 style="color:var(--tof-color)">TOF</h3><div class="badges">${bTof}</div></div>` : ''}
-    </div>`;
-}
-
-/* ── CARDS DE TEMPORIZADORES ── */
-function renderResumenTimers(d) {
-  if (!d.resumen_timers || d.resumen_timers.length === 0) return '';
-  const cards = d.resumen_timers.map(t => `
-    <div class="timer-card">
-      <span class="timer-badge ${t.tipo.toLowerCase()}">${t.tipo}</span>
-      <div class="timer-info">
-        <span class="timer-nombre">${t.nombre}</span>
-        <span class="timer-desc">${t.descripcion}</span>
-        <div class="timer-meta">
-          <span class="timer-cond">↳ condición: ${t.condicion}</span>
-          <span class="timer-time">⏱ ${t.tiempo_display}</span>
-          <span class="timer-salida">→ ${t.salida}</span>
-        </div>
-      </div>
-    </div>`).join('');
-  return `
-    <div class="seccion fade-in" id="sec-simplificacion">
-      <div class="seccion-header"><span>Temporizadores identificados</span></div>
-      <div class="seccion-body"><div class="timer-cards">${cards}</div></div>
-    </div>`;
-}
-
-/* ── LADDER SECUENCIAL ── */
-function renderLadderSecuencial(d) {
-  if (!d.ladder_secuencial) return '';
-  const botones = (d.entradas || []).map(v => `
-    <button class="state-btn" id="sbtn-${v}" onclick="toggleInput('${v}')">
-      <span class="dot"></span>${v}
-    </button>`).join('');
-  return `
-    <div class="seccion fade-in" id="ladder-seccion">
-      <div class="seccion-header">
-        <span>Diagrama Ladder</span>
-        <span style="font-family:var(--mono);font-size:.7rem;color:var(--muted)">secuencial · interactivo</span>
-      </div>
-      <div class="seccion-body">
-        <div class="ladder-hint"><b>Haz clic</b> en las entradas para simular · Los bloques TON/TOF muestran su estado de activación</div>
-        <div class="state-panel" id="state-panel-inline">${botones}</div>
-        <div class="ladder-wrap" id="ladder-svg-wrap">${dibujarLadderSecuencial(d.ladder_secuencial)}</div>
-      </div>
-    </div>`;
-}
-
-/* ═══════════════════════════════════════
-   KARNAUGH
-═══════════════════════════════════════ */
+/* ═════════════════════════════════════
+   KARNAUGH / QUINE
+═════════════════════════════════════ */
 function renderKarnaugh(s) {
-  const k = s.karnaugh;
-  if (!k || !k.mapa || k.mapa.length === 0) {
-    return `<p style="color:var(--muted);font-size:.88rem">${s.expresion_simplificada==='0'?'Salida siempre 0.':'Salida siempre 1.'}</p>`;
-  }
-  const minterms = new Set(k.minterms || []);
-  const grupos   = k.grupos || [];
-  const celdaColor = {};
-  grupos.forEach(g => g.celdas.forEach(c => { if (!celdaColor[c]) celdaColor[c] = g.color; }));
-
-  let thead = '<tr><th class="kmap-corner"> </th>';
-  (k.col_labels || []).forEach(cl => { thead += `<th>${cl}</th>`; });
-  thead += '</tr>';
-
-  let tbody = '';
-  k.mapa.forEach((fila, ri) => {
-    tbody += `<tr><th>${(k.fila_labels||[])[ri]||''}</th>`;
-    fila.forEach(idx => {
-      const val    = minterms.has(idx) ? 1 : 0;
-      const color  = celdaColor[idx] || null;
-      const estilo = color ? `border-color:${color};box-shadow:0 0 0 2px ${color}33;background:${color}15;` : '';
-      tbody += `<td class="kmap-cell${val===1?' val-1':''}${color?' resaltado':''}" style="${estilo}" title="m${idx}">${val}</td>`;
+  const k=s.karnaugh;
+  if (!k||!k.mapa||k.mapa.length===0) return `<p style="color:var(--muted);font-size:.82rem">${s.expresion_simplificada==='0'?'Salida siempre 0.':'Salida siempre 1.'}</p>`;
+  const minterms=new Set(k.minterms||[]);
+  const grupos=k.grupos||[];
+  const cc={};
+  grupos.forEach(g=>g.celdas.forEach(c=>{if(!cc[c])cc[c]=g.color;}));
+  let thead='<tr><th class="kmap-corner"> </th>';
+  (k.col_labels||[]).forEach(cl=>{thead+=`<th>${cl}</th>`;});
+  thead+='</tr>';
+  let tbody='';
+  k.mapa.forEach((fila,ri)=>{
+    tbody+=`<tr><th>${(k.fila_labels||[])[ri]||''}</th>`;
+    fila.forEach(idx=>{
+      const val=minterms.has(idx)?1:0;
+      const col=cc[idx]||null;
+      const st=col?`border-color:${col};box-shadow:0 0 0 2px ${col}33;background:${col}15;`:'';
+      tbody+=`<td class="kmap-cell${val===1?' val-1':''}${col?' resaltado':''}" style="${st}" title="m${idx}">${val}</td>`;
     });
-    tbody += '</tr>';
+    tbody+='</tr>';
   });
-
-  const items = grupos.map(g => `
-    <div class="leyenda-item">
-      <div class="leyenda-dot" style="background:${g.color}"></div>
-      <div><div class="leyenda-texto">${g.termino}</div><div class="leyenda-mints">m(${g.celdas.join(', ')})</div></div>
-    </div>`).join('');
-
-  return `
-    <div class="karnaugh-wrap">
-      <div class="kmap-container"><table class="kmap-table"><thead>${thead}</thead><tbody>${tbody}</tbody></table></div>
-      <div class="leyenda"><h4>Grupos identificados</h4>${items||'<span style="color:var(--muted);font-size:.8rem">Sin grupos</span>'}</div>
-    </div>`;
+  const items=grupos.map(g=>`<div class="leyenda-item"><div class="leyenda-dot" style="background:${g.color}"></div><div><div class="leyenda-texto">${g.termino}</div><div class="leyenda-mints">m(${g.celdas.join(', ')})</div></div></div>`).join('');
+  return `<div class="karnaugh-wrap"><div class="kmap-container"><table class="kmap-table"><thead>${thead}</thead><tbody>${tbody}</tbody></table></div><div class="leyenda"><h4>Grupos</h4>${items||'Sin grupos'}</div></div>`;
 }
 
-/* ═══════════════════════════════════════
-   QUINE
-═══════════════════════════════════════ */
 function renderQuine(s) {
-  if (!s.quine_pasos || s.quine_pasos.length === 0)
-    return `<p style="color:var(--muted);font-size:.88rem">Sin pasos disponibles.</p>`;
-  const sep = '<hr style="border:none;border-top:1px solid var(--border);margin:1.5rem 0">';
-  return s.quine_pasos.map(paso => {
-    let tablaHtml = '';
-    if (paso.tipo === 'tabla_minterms') {
-      tablaHtml = buildQmTable(paso.columnas, paso.filas.map(f =>
-        `<tr><td>${f.minterms.join(', ')}</td><td class="binario">${f.binario}</td><td style="text-align:center">${f.unos}</td></tr>`).join(''));
-    } else if (paso.tipo === 'tabla_combinaciones') {
-      tablaHtml = buildQmTable(paso.columnas, paso.filas.map(f =>
-        `<tr><td>${f.combinacion}</td><td class="binario">${f.resultado}</td><td class="termino">${f.termino}</td></tr>`).join(''));
-    } else if (paso.tipo === 'tabla_implicantes') {
-      tablaHtml = buildQmTable(paso.columnas, paso.filas.map(f =>
-        `<tr><td>${f.minterms.join(', ')}</td><td class="binario">${f.binario}</td><td class="termino">${f.termino}</td></tr>`).join(''));
-    }
-    return `<div class="qm-paso"><div class="qm-titulo">${paso.titulo}</div><div class="qm-explicacion">${paso.explicacion}</div>${tablaHtml}</div>`;
+  if (!s.quine_pasos||s.quine_pasos.length===0) return `<p style="color:var(--muted);font-size:.82rem">Sin pasos.</p>`;
+  const sep='<hr style="border:none;border-top:1px solid var(--border);margin:1.1rem 0">';
+  return s.quine_pasos.map(p=>{
+    let t='';
+    if(p.tipo==='tabla_minterms') t=buildQmTable(p.columnas,p.filas.map(f=>`<tr><td>${f.minterms.join(', ')}</td><td class="binario">${f.binario}</td><td style="text-align:center">${f.unos}</td></tr>`).join(''));
+    else if(p.tipo==='tabla_combinaciones') t=buildQmTable(p.columnas,p.filas.map(f=>`<tr><td>${f.combinacion}</td><td class="binario">${f.resultado}</td><td class="termino">${f.termino}</td></tr>`).join(''));
+    else if(p.tipo==='tabla_implicantes') t=buildQmTable(p.columnas,p.filas.map(f=>`<tr><td>${f.minterms.join(', ')}</td><td class="binario">${f.binario}</td><td class="termino">${f.termino}</td></tr>`).join(''));
+    return `<div class="qm-paso"><div class="qm-titulo">${p.titulo}</div><div class="qm-explicacion">${p.explicacion}</div>${t}</div>`;
   }).join(sep);
 }
-function buildQmTable(cols, filas) {
-  return `<div class="qm-tabla"><table><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${filas}</tbody></table></div>`;
-}
+function buildQmTable(cols,filas){return`<div class="qm-tabla"><table><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${filas}</tbody></table></div>`;}
 
-/* ═══════════════════════════════════════
-   TOGGLE ENTRADA
-═══════════════════════════════════════ */
+/* ═════════════════════════════════════
+   TOGGLE ENTRADAS
+═════════════════════════════════════ */
 function toggleInput(v) {
-  inputStates[v] = inputStates[v] === 1 ? 0 : 1;
-  ['sbtn', 'sbtn-float'].forEach(p => {
-    const b = document.getElementById(`${p}-${v}`);
-    if (b) b.classList.toggle('on', inputStates[v] === 1);
-  });
-  const wrap = document.getElementById('ladder-svg-wrap');
-  if (!wrap || !ladderData) return;
-  wrap.innerHTML = ladderData.tipo === 'secuencial'
-    ? dibujarLadderSecuencial(ladderData)
-    : dibujarLadderCombinacional(ladderData, Object.keys(inputStates));
+  inputStates[v] = inputStates[v]===1?0:1;
+  syncBotones(v);
+  const wrap=document.getElementById('ladder-svg-wrap');
+  if (wrap && ladderActivo) {
+    wrap.innerHTML = ladderActivo.tipo==='secuencial'
+      ? dibujarLadderSecuencial(ladderActivo)
+      : dibujarLadderCombinacional(ladderActivo, Object.keys(inputStates));
+  }
 }
 
-/* ═══════════════════════════════════════
+function toggleInputSS(ssId, v) {
+  inputStates[v]=inputStates[v]===1?0:1;
+  syncBotones(v);
+  const wrap=document.getElementById(`ladder-svg-${ssId}`);
+  const ld=ssLadders[ssId];
+  const ss=(window._ssData||[]).find(s=>s.id===ssId);
+  if (wrap && ld) wrap.innerHTML=dibujarLadderCombinacional(ld, ss?ss.entradas:Object.keys(inputStates));
+}
+
+function toggleInputCapa(capaId, v) {
+  inputStates[v]=inputStates[v]===1?0:1;
+  syncBotones(v);
+  const wrap=document.getElementById(`ladder-capa-${capaId}`);
+  const esc=capaLadders[capaId];
+  if (wrap && esc) wrap.innerHTML=dibujarLadderCapas(esc, capaId);
+}
+
+function syncBotones(v) {
+  document.querySelectorAll('.state-btn').forEach(b => {
+    const id = b.id || '';
+    if (id.endsWith('-'+v) || id === 'sbtn-'+v || id === 'sbtn-float-'+v) {
+      b.classList.toggle('on', inputStates[v]===1);
+    }
+  });
+}
+
+/* ═════════════════════════════════════
    SVG — LADDER COMBINACIONAL
-═══════════════════════════════════════ */
+═════════════════════════════════════ */
 function dibujarLadderCombinacional(ladder, entradas) {
-  const salidas        = ladder.salidas;
-  const RAIL_LEFT      = 30;
-  const RAIL_RIGHT_OFF = 120;
-  const ROW_H          = 70;
-  const CONTACT_W      = 55;
-  const CONTACT_H      = 28;
-  const COIL_R         = 18;
-  const PAD_TOP        = 30;
-  const PAD_BOT        = 30;
+  const salidas=ladder.salidas||[];
+  const RL=30,RO=120,RH=70,CW=55,CH=28,CR=18,PT=30,PB=30;
+  let mx=0;
+  salidas.forEach(s=>s.escalones.forEach(e=>{if(e.contactos.length>mx)mx=e.contactos.length;}));
+  const AW=Math.max(420,mx*(CW+16)+80),RR=RL+AW;
+  let nF=0;salidas.forEach(s=>{nF+=s.escalones.length;});nF+=Math.max(0,salidas.length-1);
+  const SH=PT+nF*RH+PB,SW=RR+RO+20;
+  const CA='#4ade80',CI='#2e323d',CM='#6b7080',CT='#e8eaf0',CNC='#38bdf8',BG='#161920';
+  let els=[];
+  els.push(`<line x1="${RL}" y1="${PT-10}" x2="${RL}" y2="${SH-PB+10}" stroke="${CI}" stroke-width="4" stroke-linecap="round"/>`);
+  els.push(`<line x1="${RR}" y1="${PT-10}" x2="${RR}" y2="${SH-PB+10}" stroke="${CI}" stroke-width="4" stroke-linecap="round"/>`);
+  els.push(`<text x="${RL}" y="${PT-16}" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="${CM}">L+</text>`);
+  els.push(`<text x="${RR}" y="${PT-16}" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="${CM}">L-</text>`);
+  let cY=PT,prim=true;
+  salidas.forEach(sal=>{
+    if(!prim)els.push(`<line x1="${RL+10}" y1="${cY-10}" x2="${RR-10}" y2="${cY-10}" stroke="${CI}" stroke-width="1" stroke-dasharray="4 4" opacity="0.4"/>`);
+    prim=false;
+    const nE=sal.escalones.length,bH=nE*RH,mY=cY+bH/2;
+    const bA=sal.escalones.some(e=>e.contactos.every(ct=>{const v=inputStates[ct.var]!==undefined?inputStates[ct.var]:0;return ct.negado?v===0:v===1;}));
+    if(nE>1)els.push(`<line x1="${RL+4}" y1="${cY+RH/2}" x2="${RL+4}" y2="${cY+bH-RH/2}" stroke="${CI}" stroke-width="2.5"/>`);
+    sal.escalones.forEach((esc,ei)=>{
+      const my=cY+ei*RH+RH/2;
+      const eA=esc.contactos.every(ct=>{const v=inputStates[ct.var]!==undefined?inputStates[ct.var]:0;return ct.negado?v===0:v===1;});
+      const wc=eA?CA:CI;
+      els.push(`<line x1="${RL+4}" y1="${my}" x2="${RL+30}" y2="${my}" stroke="${wc}" stroke-width="2.5"/>`);
+      let xC=RL+30;
+      esc.contactos.forEach((ct,ci)=>{
+        const v=inputStates[ct.var]!==undefined?inputStates[ct.var]:0;
+        const ca=ct.negado?v===0:v===1;
+        const cc=ca?CA:CI,lc=ct.negado?CNC:CT;
+        if(ci>0){els.push(`<line x1="${xC}" y1="${my}" x2="${xC+10}" y2="${my}" stroke="${cc}" stroke-width="2.5"/>`);xC+=10;}
+        const cx=xC+CW/2;
+        els.push(`<line x1="${cx-10}" y1="${my-CH/2}" x2="${cx-10}" y2="${my+CH/2}" stroke="${cc}" stroke-width="2.5"/>`);
+        els.push(`<line x1="${cx+10}" y1="${my-CH/2}" x2="${cx+10}" y2="${my+CH/2}" stroke="${cc}" stroke-width="2.5"/>`);
+        els.push(`<line x1="${cx-10}" y1="${my}" x2="${cx+10}" y2="${my}" stroke="${cc}" stroke-width="2.5"/>`);
+        if(ct.negado)els.push(`<line x1="${cx-8}" y1="${my+CH/2-4}" x2="${cx+8}" y2="${my-CH/2+4}" stroke="${cc}" stroke-width="2"/>`);
+        els.push(`<text x="${cx}" y="${my-CH/2-5}" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="600" fill="${lc}">${ct.negado?ct.var+"'":ct.var}</text>`);
+        xC+=CW;
+      });
+      els.push(`<line x1="${xC}" y1="${my}" x2="${RR-4}" y2="${my}" stroke="${wc}" stroke-width="2.5"/>`);
+    });
+    if(nE>1)els.push(`<line x1="${RR-4}" y1="${cY+RH/2}" x2="${RR-4}" y2="${cY+bH-RH/2}" stroke="${CI}" stroke-width="2.5"/>`);
+    const bc=bA?CA:CI,cx=RR+40;
+    els.push(`<line x1="${RR-4}" y1="${mY}" x2="${cx-CR}" y2="${mY}" stroke="${bc}" stroke-width="2.5"/>`);
+    els.push(`<circle cx="${cx}" cy="${mY}" r="${CR}" fill="${bA?'#0c2a1a':'#12151d'}" stroke="${bA?CA:'#2e323d'}" stroke-width="2.5"/>`);
+    els.push(`<text x="${cx}" y="${mY+1}" text-anchor="middle" dominant-baseline="middle" font-family="IBM Plex Mono" font-size="13" font-weight="600" fill="${bA?CA:CM}">( )</text>`);
+    els.push(`<text x="${cx}" y="${mY-CR-6}" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="600" fill="${bA?CA:CM}">${sal.nombre}</text>`);
+    els.push(`<line x1="${cx+CR}" y1="${mY}" x2="${RR+RO-10}" y2="${mY}" stroke="${bc}" stroke-width="2.5"/>`);
+    cY+=nE*RH;
+  });
+  return `<svg class="ladder-svg" width="${SW}" height="${SH}" viewBox="0 0 ${SW} ${SH}" xmlns="http://www.w3.org/2000/svg"><rect width="${SW}" height="${SH}" fill="${BG}" rx="10"/>${els.join('')}</svg>`;
+}
 
-  let maxCt = 0;
-  salidas.forEach(s => s.escalones.forEach(e => { if (e.contactos.length > maxCt) maxCt = e.contactos.length; }));
+/* ═════════════════════════════════════
+   SVG — LADDER CAPAS (nombres largos)
+═════════════════════════════════════ */
+function dibujarLadderCapas(escalones, capaId) {
+  if (!escalones || escalones.length === 0)
+    return '<p style="color:var(--muted);font-size:.82rem">Sin escalones.</p>';
 
-  const AREA_W     = Math.max(420, maxCt * (CONTACT_W + 16) + 80);
-  const RAIL_RIGHT = RAIL_LEFT + AREA_W;
-  let totalFilas   = 0;
-  salidas.forEach(s => { totalFilas += s.escalones.length; });
-  totalFilas += Math.max(0, salidas.length - 1);
+  const RL=30, RO=160, RH=75, CW=75, CH=28, CR=18, PT=30, PB=30;
+  const LABEL_SCALE = 9; // px por carácter aprox para nombres largos
 
-  const svgH = PAD_TOP + totalFilas * ROW_H + PAD_BOT;
-  const svgW = RAIL_RIGHT + RAIL_RIGHT_OFF + 20;
+  // Calcular ancho necesario
+  let maxCts = 0;
+  escalones.forEach(e => { if((e.contactos||[]).length > maxCts) maxCts = e.contactos.length; });
+  const AW = Math.max(520, maxCts * (CW + 14) + 100);
+  const RR  = RL + AW;
 
-  const CA = '#4ade80', CI = '#2e323d', CR = '#2e323d', CT = '#e8eaf0', CM = '#6b7080', CNC = '#38bdf8', BG = '#161920';
+  // Escalones paralelos (misma bobina consecutivos)
+  const grupos = [];
+  let i = 0;
+  while (i < escalones.length) {
+    const esc = escalones[i];
+    const bobina = esc.bobina || esc.label || '';
+    const mismo  = [esc];
+    while (i+1 < escalones.length && (escalones[i+1].bobina||escalones[i+1].label||'') === bobina && escalones[i+1].tipo === esc.tipo) {
+      i++; mismo.push(escalones[i]);
+    }
+    grupos.push({bobina, tipo: esc.tipo, escalones: mismo});
+    i++;
+  }
+
+  let totalFilas = grupos.reduce((a,g)=>a+g.escalones.length,0);
+  totalFilas    += Math.max(0, grupos.length-1);
+  const SH = PT + totalFilas * RH + PB;
+  const SW  = RR + RO + 20;
+
+  const CA='#4ade80',CI='#2e323d',CM='#6b7080',CT='#e8eaf0',CNC='#38bdf8';
+  const CSET='#4ade80',CRST='#f87171',CEXCL='#fbbf24',BG='#161920';
+
   let els = [];
+  els.push(`<line x1="${RL}" y1="${PT-10}" x2="${RL}" y2="${SH-PB+10}" stroke="${CI}" stroke-width="4" stroke-linecap="round"/>`);
+  els.push(`<line x1="${RR}" y1="${PT-10}" x2="${RR}" y2="${SH-PB+10}" stroke="${CI}" stroke-width="4" stroke-linecap="round"/>`);
+  els.push(`<text x="${RL}" y="${PT-16}" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="${CM}">L+</text>`);
+  els.push(`<text x="${RR}" y="${PT-16}" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="${CM}">L-</text>`);
 
-  els.push(`<line x1="${RAIL_LEFT}" y1="${PAD_TOP-10}" x2="${RAIL_LEFT}" y2="${svgH-PAD_BOT+10}" stroke="${CR}" stroke-width="4" stroke-linecap="round"/>`);
-  els.push(`<line x1="${RAIL_RIGHT}" y1="${PAD_TOP-10}" x2="${RAIL_RIGHT}" y2="${svgH-PAD_BOT+10}" stroke="${CR}" stroke-width="4" stroke-linecap="round"/>`);
-  els.push(`<text x="${RAIL_LEFT}" y="${PAD_TOP-16}" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="${CM}">L+</text>`);
-  els.push(`<text x="${RAIL_RIGHT}" y="${PAD_TOP-16}" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="${CM}">L-</text>`);
+  let cY=PT, primerGrupo=true;
+  grupos.forEach(grupo => {
+    if (!primerGrupo) {
+      els.push(`<line x1="${RL+10}" y1="${cY-8}" x2="${RR-10}" y2="${cY-8}" stroke="${CI}" stroke-width="1" stroke-dasharray="4 4" opacity="0.35"/>`);
+    }
+    primerGrupo = false;
 
-  let curY = PAD_TOP; let primera = true;
-  salidas.forEach(sal => {
-    if (!primera) els.push(`<line x1="${RAIL_LEFT+10}" y1="${curY-10}" x2="${RAIL_RIGHT-10}" y2="${curY-10}" stroke="${CR}" stroke-width="1" stroke-dasharray="4 4" opacity="0.4"/>`);
-    primera = false;
-    const nEsc = sal.escalones.length;
-    const bloqueH = nEsc * ROW_H;
-    const midY    = curY + bloqueH / 2;
-    const bobActiva = sal.escalones.some(esc => esc.contactos.every(ct => {
-      const v = inputStates[ct.var] !== undefined ? inputStates[ct.var] : 0;
-      return ct.negado ? v === 0 : v === 1;
-    }));
+    const nE   = grupo.escalones.length;
+    const bH   = nE * RH;
+    const midY = cY + bH / 2;
+    const tipo = grupo.tipo || 'normal';
 
-    if (nEsc > 1) els.push(`<line x1="${RAIL_LEFT+4}" y1="${curY+ROW_H/2}" x2="${RAIL_LEFT+4}" y2="${curY+bloqueH-ROW_H/2}" stroke="${CI}" stroke-width="2.5"/>`);
+    // Color según tipo
+    const bobinaColor = tipo==='set' ? CSET : tipo==='reset' ? CRST
+                      : tipo==='exclusion_mutua' ? CEXCL : CA;
 
-    sal.escalones.forEach((esc, ei) => {
-      const my = curY + ei * ROW_H + ROW_H / 2;
-      const activo = esc.contactos.every(ct => {
+    // Barra paralela izquierda
+    if (nE > 1) {
+      els.push(`<line x1="${RL+4}" y1="${cY+RH/2}" x2="${RL+4}" y2="${cY+bH-RH/2}" stroke="${CI}" stroke-width="2.5"/>`);
+    }
+
+    grupo.escalones.forEach((esc, ei) => {
+      const my  = cY + ei * RH + RH / 2;
+      const cts = esc.contactos || [];
+
+      // Evaluar si el escalón está activo
+      const activo = cts.length > 0 && cts.every(ct => {
         const v = inputStates[ct.var] !== undefined ? inputStates[ct.var] : 0;
         return ct.negado ? v === 0 : v === 1;
       });
       const wc = activo ? CA : CI;
-      els.push(`<line x1="${RAIL_LEFT+4}" y1="${my}" x2="${RAIL_LEFT+30}" y2="${my}" stroke="${wc}" stroke-width="2.5"/>`);
 
-      let xC = RAIL_LEFT + 30;
-      esc.contactos.forEach((ct, ci) => {
+      // Línea inicio
+      els.push(`<line x1="${RL+4}" y1="${my}" x2="${RL+30}" y2="${my}" stroke="${wc}" stroke-width="2.5"/>`);
+      let xC = RL + 30;
+
+      cts.forEach((ct, ci) => {
+        if (ci > 0) {
+          els.push(`<line x1="${xC}" y1="${my}" x2="${xC+8}" y2="${my}" stroke="${wc}" stroke-width="2.5"/>`);
+          xC += 8;
+        }
         const v  = inputStates[ct.var] !== undefined ? inputStates[ct.var] : 0;
         const ca = ct.negado ? v === 0 : v === 1;
         const cc = ca ? CA : CI;
         const lc = ct.negado ? CNC : CT;
-        if (ci > 0) { els.push(`<line x1="${xC}" y1="${my}" x2="${xC+10}" y2="${my}" stroke="${cc}" stroke-width="2.5"/>`); xC += 10; }
-        const cx = xC + CONTACT_W / 2;
-        els.push(`<line x1="${cx-10}" y1="${my-CONTACT_H/2}" x2="${cx-10}" y2="${my+CONTACT_H/2}" stroke="${cc}" stroke-width="2.5"/>`);
-        els.push(`<line x1="${cx+10}" y1="${my-CONTACT_H/2}" x2="${cx+10}" y2="${my+CONTACT_H/2}" stroke="${cc}" stroke-width="2.5"/>`);
+        const cx = xC + CW / 2;
+
+        // Contacto
+        els.push(`<line x1="${cx-10}" y1="${my-CH/2}" x2="${cx-10}" y2="${my+CH/2}" stroke="${cc}" stroke-width="2.5"/>`);
+        els.push(`<line x1="${cx+10}" y1="${my-CH/2}" x2="${cx+10}" y2="${my+CH/2}" stroke="${cc}" stroke-width="2.5"/>`);
         els.push(`<line x1="${cx-10}" y1="${my}" x2="${cx+10}" y2="${my}" stroke="${cc}" stroke-width="2.5"/>`);
-        if (ct.negado) els.push(`<line x1="${cx-8}" y1="${my+CONTACT_H/2-4}" x2="${cx+8}" y2="${my-CONTACT_H/2+4}" stroke="${cc}" stroke-width="2"/>`);
-        els.push(`<text x="${cx}" y="${my-CONTACT_H/2-5}" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="600" fill="${lc}">${ct.negado?ct.var+"'":ct.var}</text>`);
-        xC += CONTACT_W;
+        if (ct.negado) els.push(`<line x1="${cx-8}" y1="${my+CH/2-4}" x2="${cx+8}" y2="${my-CH/2+4}" stroke="${cc}" stroke-width="2"/>`);
+
+        // Etiqueta (nombre largo — reducir font si necesario)
+        const label   = ct.negado ? ct.var+"'" : ct.var;
+        const fontSize = label.length > 5 ? 8 : 10;
+        els.push(`<text x="${cx}" y="${my-CH/2-5}" text-anchor="middle" font-family="IBM Plex Mono" font-size="${fontSize}" font-weight="600" fill="${lc}">${label}</text>`);
+        xC += CW;
       });
-      els.push(`<line x1="${xC}" y1="${my}" x2="${RAIL_RIGHT-4}" y2="${my}" stroke="${wc}" stroke-width="2.5"/>`);
+
+      // Línea al riel derecho
+      els.push(`<line x1="${xC}" y1="${my}" x2="${RR-4}" y2="${my}" stroke="${wc}" stroke-width="2.5"/>`);
     });
 
-    if (nEsc > 1) els.push(`<line x1="${RAIL_RIGHT-4}" y1="${curY+ROW_H/2}" x2="${RAIL_RIGHT-4}" y2="${curY+bloqueH-ROW_H/2}" stroke="${CI}" stroke-width="2.5"/>`);
+    // Barra paralela derecha
+    if (nE > 1) {
+      els.push(`<line x1="${RR-4}" y1="${cY+RH/2}" x2="${RR-4}" y2="${cY+bH-RH/2}" stroke="${CI}" stroke-width="2.5"/>`);
+    }
 
-    const bc = bobActiva ? CA : CI;
-    const cx = RAIL_RIGHT + 40;
-    els.push(`<line x1="${RAIL_RIGHT-4}" y1="${midY}" x2="${cx-COIL_R}" y2="${midY}" stroke="${bc}" stroke-width="2.5"/>`);
-    els.push(`<circle cx="${cx}" cy="${midY}" r="${COIL_R}" fill="${bobActiva?'#0c2a1a':'#12151d'}" stroke="${bobActiva?CA:'#2e323d'}" stroke-width="2.5"/>`);
-    els.push(`<text x="${cx}" y="${midY+1}" text-anchor="middle" dominant-baseline="middle" font-family="IBM Plex Mono" font-size="13" font-weight="600" fill="${bobActiva?CA:CM}">( )</text>`);
-    els.push(`<text x="${cx}" y="${midY-COIL_R-6}" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="600" fill="${bobActiva?CA:CM}">${sal.nombre}</text>`);
-    els.push(`<line x1="${cx+COIL_R}" y1="${midY}" x2="${RAIL_RIGHT+RAIL_RIGHT_OFF-10}" y2="${midY}" stroke="${bc}" stroke-width="2.5"/>`);
-    curY += nEsc * ROW_H;
+    // Bobina
+    const bobActiva = grupo.escalones.some(esc => {
+      const cts = esc.contactos || [];
+      return cts.length > 0 && cts.every(ct => {
+        const v = inputStates[ct.var] !== undefined ? inputStates[ct.var] : 0;
+        return ct.negado ? v === 0 : v === 1;
+      });
+    });
+
+    const bc  = bobActiva ? bobinaColor : CI;
+    const coilX = RR + 40;
+
+    // Línea riel → bobina
+    els.push(`<line x1="${RR-4}" y1="${midY}" x2="${coilX-CR}" y2="${midY}" stroke="${bc}" stroke-width="2.5"/>`);
+
+    // Círculo de bobina
+    const fillBobina = bobActiva
+      ? (tipo==='set'?'#0c2a1a':tipo==='reset'?'#2a0c0c':tipo==='exclusion_mutua'?'#2a1a00':'#0c2a1a')
+      : '#12151d';
+    els.push(`<circle cx="${coilX}" cy="${midY}" r="${CR}" fill="${fillBobina}" stroke="${bobActiva?bobinaColor:'#2e323d'}" stroke-width="2.5"/>`);
+
+    // Símbolo dentro de la bobina
+    const simbolo = tipo==='set' ? '(S)' : tipo==='reset' ? '(R)' : '( )';
+    els.push(`<text x="${coilX}" y="${midY+1}" text-anchor="middle" dominant-baseline="middle" font-family="IBM Plex Mono" font-size="11" font-weight="700" fill="${bobActiva?bobinaColor:CM}">${simbolo}</text>`);
+
+    // Etiqueta bobina
+    const labelBobina = grupo.label || grupo.bobina || '';
+    const fszLabel    = labelBobina.length > 6 ? 8 : 10;
+    els.push(`<text x="${coilX}" y="${midY-CR-5}" text-anchor="middle" font-family="IBM Plex Mono" font-size="${fszLabel}" font-weight="600" fill="${bobActiva?bobinaColor:CM}">${labelBobina}</text>`);
+
+    // Línea bobina → riel derecho
+    els.push(`<line x1="${coilX+CR}" y1="${midY}" x2="${RR+RO-10}" y2="${midY}" stroke="${bc}" stroke-width="2.5"/>`);
+
+    cY += nE * RH;
   });
 
-  return `<svg class="ladder-svg" width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg">
-    <rect width="${svgW}" height="${svgH}" fill="${BG}" rx="10"/>
-    ${els.join('\n')}
-  </svg>`;
+  return `<svg class="ladder-svg" width="${SW}" height="${SH}" viewBox="0 0 ${SW} ${SH}" xmlns="http://www.w3.org/2000/svg"><rect width="${SW}" height="${SH}" fill="${BG}" rx="10"/>${els.join('')}</svg>`;
 }
 
-/* ═══════════════════════════════════════
-   SVG — LADDER SECUENCIAL (TON / TOF)
-═══════════════════════════════════════ */
+/* ═════════════════════════════════════
+   SVG — LADDER SECUENCIAL
+═════════════════════════════════════ */
 function dibujarLadderSecuencial(ladder) {
-  const escalones      = ladder.escalones || [];
-  const RAIL_LEFT      = 30;
-  const RAIL_RIGHT_OFF = 160;
-  const ROW_H          = 80;
-  const CONTACT_W      = 65;
-  const CONTACT_H      = 28;
-  const TIMER_W        = 100;
-  const TIMER_H        = 52;
-  const COIL_R         = 18;
-  const PAD_TOP        = 30;
-  const PAD_BOT        = 30;
-
-  // Calcular ancho
-  let maxW = 0;
-  escalones.forEach(esc => {
-    const w = esc.contactos.length * (CONTACT_W + 12) + (esc.timer ? TIMER_W + 20 : COIL_R * 2 + 20);
-    if (w > maxW) maxW = w;
-  });
-
-  const AREA_W     = Math.max(500, maxW + 60);
-  const RAIL_RIGHT = RAIL_LEFT + AREA_W;
-  const svgH       = PAD_TOP + escalones.length * ROW_H + PAD_BOT;
-  const svgW       = RAIL_RIGHT + RAIL_RIGHT_OFF + 20;
-
-  const CA = '#4ade80', CI = '#2e323d', CR = '#2e323d', CT = '#e8eaf0';
-  const CM = '#6b7080', CNC = '#38bdf8', BG = '#161920';
-  const CTON = '#fb923c', CTOF = '#f472b6';
-
-  let els = [];
-
-  // Rieles
-  els.push(`<line x1="${RAIL_LEFT}" y1="${PAD_TOP-10}" x2="${RAIL_LEFT}" y2="${svgH-PAD_BOT+10}" stroke="${CR}" stroke-width="4" stroke-linecap="round"/>`);
-  els.push(`<line x1="${RAIL_RIGHT}" y1="${PAD_TOP-10}" x2="${RAIL_RIGHT}" y2="${svgH-PAD_BOT+10}" stroke="${CR}" stroke-width="4" stroke-linecap="round"/>`);
-  els.push(`<text x="${RAIL_LEFT}" y="${PAD_TOP-16}" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="${CM}">L+</text>`);
-  els.push(`<text x="${RAIL_RIGHT}" y="${PAD_TOP-16}" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="${CM}">L-</text>`);
-
-  escalones.forEach((esc, i) => {
-    const my = PAD_TOP + i * ROW_H + ROW_H / 2;
-
-    // Separador
-    if (i > 0) els.push(`<line x1="${RAIL_LEFT+10}" y1="${my-ROW_H/2}" x2="${RAIL_RIGHT-10}" y2="${my-ROW_H/2}" stroke="${CR}" stroke-width="1" stroke-dasharray="4 4" opacity="0.3"/>`);
-
-    // Evaluar condición de los contactos
-    const condActiva = esc.contactos.every(ct => {
-      if (ct.es_timer) return false; // timer contact siempre inactivo en sim estática
-      const v = inputStates[ct.var] !== undefined ? inputStates[ct.var] : 0;
-      return ct.negado ? v === 0 : v === 1;
-    });
-    const wc = condActiva ? CA : CI;
-
-    // Línea inicio
-    els.push(`<line x1="${RAIL_LEFT+4}" y1="${my}" x2="${RAIL_LEFT+30}" y2="${my}" stroke="${wc}" stroke-width="2.5"/>`);
-
-    let xC = RAIL_LEFT + 30;
-
-    // Dibujar contactos
-    esc.contactos.forEach((ct, ci) => {
-      if (ci > 0) { els.push(`<line x1="${xC}" y1="${my}" x2="${xC+10}" y2="${my}" stroke="${wc}" stroke-width="2.5"/>`); xC += 10; }
-
-      const cx = xC + CONTACT_W / 2;
-
-      if (ct.es_timer) {
-        // Contacto de temporizador — rectángulo punteado con T
-        const tc = ct.tipo_timer === 'TON' ? CTON : CTOF;
+  const esc=ladder.escalones||[];
+  const RL=30,RO=160,RH=80,CW=65,CH=28,TW=100,TH=52,CR=18,PT=30,PB=30;
+  const AW=Math.max(500,520),RR=RL+AW,SH=PT+esc.length*RH+PB,SW=RR+RO+20;
+  const CA='#4ade80',CI='#2e323d',CM='#6b7080',CT='#e8eaf0',CNC='#38bdf8',CTON='#fb923c',CTOF='#f472b6',BG='#161920';
+  let els=[];
+  els.push(`<line x1="${RL}" y1="${PT-10}" x2="${RL}" y2="${SH-PB+10}" stroke="${CI}" stroke-width="4" stroke-linecap="round"/>`);
+  els.push(`<line x1="${RR}" y1="${PT-10}" x2="${RR}" y2="${SH-PB+10}" stroke="${CI}" stroke-width="4" stroke-linecap="round"/>`);
+  els.push(`<text x="${RL}" y="${PT-16}" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="${CM}">L+</text>`);
+  els.push(`<text x="${RR}" y="${PT-16}" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="${CM}">L-</text>`);
+  esc.forEach((e,i)=>{
+    const my=PT+i*RH+RH/2;
+    if(i>0)els.push(`<line x1="${RL+10}" y1="${my-RH/2}" x2="${RR-10}" y2="${my-RH/2}" stroke="${CI}" stroke-width="1" stroke-dasharray="4 4" opacity="0.3"/>`);
+    const cA=e.contactos.every(ct=>{if(ct.es_timer)return false;const v=inputStates[ct.var]!==undefined?inputStates[ct.var]:0;return ct.negado?v===0:v===1;});
+    const wc=cA?CA:CI;
+    els.push(`<line x1="${RL+4}" y1="${my}" x2="${RL+30}" y2="${my}" stroke="${wc}" stroke-width="2.5"/>`);
+    let xC=RL+30;
+    e.contactos.forEach((ct,ci)=>{
+      if(ci>0){els.push(`<line x1="${xC}" y1="${my}" x2="${xC+10}" y2="${my}" stroke="${wc}" stroke-width="2.5"/>`);xC+=10;}
+      const cx=xC+CW/2;
+      if(ct.es_timer){
+        const tc=ct.tipo_timer==='TON'?CTON:CTOF;
         els.push(`<rect x="${cx-18}" y="${my-14}" width="36" height="28" rx="4" fill="none" stroke="${tc}" stroke-width="1.5" stroke-dasharray="4 2"/>`);
         els.push(`<text x="${cx}" y="${my+1}" text-anchor="middle" dominant-baseline="middle" font-family="IBM Plex Mono" font-size="10" font-weight="600" fill="${tc}">${ct.var}</text>`);
-        els.push(`<text x="${cx}" y="${my-14-6}" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="${tc}">${ct.tipo_timer}</text>`);
+        els.push(`<text x="${cx}" y="${my-20}" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="${tc}">${ct.tipo_timer}</text>`);
       } else {
-        const v  = inputStates[ct.var] !== undefined ? inputStates[ct.var] : 0;
-        const ca = ct.negado ? v === 0 : v === 1;
-        const cc = ca ? CA : CI;
-        const lc = ct.negado ? CNC : CT;
-        // Contacto estándar
-        els.push(`<line x1="${cx-10}" y1="${my-CONTACT_H/2}" x2="${cx-10}" y2="${my+CONTACT_H/2}" stroke="${cc}" stroke-width="2.5"/>`);
-        els.push(`<line x1="${cx+10}" y1="${my-CONTACT_H/2}" x2="${cx+10}" y2="${my+CONTACT_H/2}" stroke="${cc}" stroke-width="2.5"/>`);
+        const v=inputStates[ct.var]!==undefined?inputStates[ct.var]:0;
+        const ca=ct.negado?v===0:v===1;const cc=ca?CA:CI,lc=ct.negado?CNC:CT;
+        els.push(`<line x1="${cx-10}" y1="${my-CH/2}" x2="${cx-10}" y2="${my+CH/2}" stroke="${cc}" stroke-width="2.5"/>`);
+        els.push(`<line x1="${cx+10}" y1="${my-CH/2}" x2="${cx+10}" y2="${my+CH/2}" stroke="${cc}" stroke-width="2.5"/>`);
         els.push(`<line x1="${cx-10}" y1="${my}" x2="${cx+10}" y2="${my}" stroke="${cc}" stroke-width="2.5"/>`);
-        if (ct.negado) els.push(`<line x1="${cx-8}" y1="${my+CONTACT_H/2-4}" x2="${cx+8}" y2="${my-CONTACT_H/2+4}" stroke="${cc}" stroke-width="2"/>`);
-        els.push(`<text x="${cx}" y="${my-CONTACT_H/2-5}" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="600" fill="${lc}">${ct.negado?ct.var+"'":ct.var}</text>`);
+        if(ct.negado)els.push(`<line x1="${cx-8}" y1="${my+CH/2-4}" x2="${cx+8}" y2="${my-CH/2+4}" stroke="${cc}" stroke-width="2"/>`);
+        els.push(`<text x="${cx}" y="${my-CH/2-5}" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="600" fill="${lc}">${ct.negado?ct.var+"'":ct.var}</text>`);
       }
-      xC += CONTACT_W;
+      xC+=CW;
     });
-
-    // Línea antes del bloque final
-    els.push(`<line x1="${xC}" y1="${my}" x2="${xC+14}" y2="${my}" stroke="${wc}" stroke-width="2.5"/>`);
-    xC += 14;
-
-    if (esc.tipo === 'timer_coil' && esc.timer) {
-      // ══ BLOQUE TEMPORIZADOR ══
-      const t   = esc.timer;
-      const tc  = t.tipo === 'TON' ? CTON : CTOF;
-      const tf  = condActiva ? '#2a1200' : '#12151d';
-      const bx  = xC;
-      const by  = my - TIMER_H / 2;
-
-      // Caja del timer
-      els.push(`<rect x="${bx}" y="${by}" width="${TIMER_W}" height="${TIMER_H}" rx="6" fill="${tf}" stroke="${condActiva ? tc : '#2e323d'}" stroke-width="2"/>`);
-
-      // Tipo (TON / TOF)
-      els.push(`<text x="${bx + TIMER_W/2}" y="${by+14}" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="700" fill="${tc}">${t.tipo}</text>`);
-
-      // Nombre
-      els.push(`<text x="${bx + TIMER_W/2}" y="${by+28}" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="${CT}">${t.nombre}</text>`);
-
-      // Tiempo
-      els.push(`<text x="${bx + TIMER_W/2}" y="${by+42}" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="${condActiva ? tc : CM}">PT: ${t.tiempo_display}</text>`);
-
-      // Línea de salida al riel
-      els.push(`<line x1="${bx + TIMER_W}" y1="${my}" x2="${RAIL_RIGHT-4}" y2="${my}" stroke="${wc}" stroke-width="2.5"/>`);
-
-      // Etiqueta sobre el bloque
-      els.push(`<text x="${bx + TIMER_W/2}" y="${by-6}" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="${CM}">bobina timer</text>`);
-
-    } else if (esc.tipo === 'timer_contact') {
-      // ══ BOBINA DE SALIDA ══
-      const coilX = xC + COIL_R + 5;
-      // cable a bobina
-      els.push(`<line x1="${xC}" y1="${my}" x2="${coilX - COIL_R}" y2="${my}" stroke="${CI}" stroke-width="2.5"/>`);
-      els.push(`<circle cx="${coilX}" cy="${my}" r="${COIL_R}" fill="#12151d" stroke="#2e323d" stroke-width="2.5"/>`);
-      els.push(`<text x="${coilX}" y="${my+1}" text-anchor="middle" dominant-baseline="middle" font-family="IBM Plex Mono" font-size="13" font-weight="600" fill="${CM}">( )</text>`);
-      els.push(`<text x="${coilX}" y="${my-COIL_R-6}" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="600" fill="${CM}">${esc.bobina}</text>`);
-      // cable al riel
-      els.push(`<line x1="${coilX+COIL_R}" y1="${my}" x2="${RAIL_RIGHT+RAIL_RIGHT_OFF-10}" y2="${my}" stroke="${CI}" stroke-width="2.5"/>`);
+    els.push(`<line x1="${xC}" y1="${my}" x2="${xC+14}" y2="${my}" stroke="${wc}" stroke-width="2.5"/>`);xC+=14;
+    if(e.tipo==='timer_coil'&&e.timer){
+      const t=e.timer,tc=t.tipo==='TON'?CTON:CTOF,tf=cA?'#2a1200':'#12151d';
+      const bx=xC,by=my-TH/2;
+      els.push(`<rect x="${bx}" y="${by}" width="${TW}" height="${TH}" rx="6" fill="${tf}" stroke="${cA?tc:'#2e323d'}" stroke-width="2"/>`);
+      els.push(`<text x="${bx+TW/2}" y="${by+14}" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="700" fill="${tc}">${t.tipo}</text>`);
+      els.push(`<text x="${bx+TW/2}" y="${by+28}" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="${CT}">${t.nombre}</text>`);
+      els.push(`<text x="${bx+TW/2}" y="${by+42}" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="${cA?tc:CM}">PT: ${t.tiempo_display}</text>`);
+      els.push(`<line x1="${bx+TW}" y1="${my}" x2="${RR-4}" y2="${my}" stroke="${wc}" stroke-width="2.5"/>`);
+      els.push(`<text x="${bx+TW/2}" y="${by-6}" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="${CM}">bobina timer</text>`);
+    } else if(e.tipo==='timer_contact'){
+      const cx2=xC+CR+5;
+      els.push(`<line x1="${xC}" y1="${my}" x2="${cx2-CR}" y2="${my}" stroke="${CI}" stroke-width="2.5"/>`);
+      els.push(`<circle cx="${cx2}" cy="${my}" r="${CR}" fill="#12151d" stroke="#2e323d" stroke-width="2.5"/>`);
+      els.push(`<text x="${cx2}" y="${my+1}" text-anchor="middle" dominant-baseline="middle" font-family="IBM Plex Mono" font-size="13" font-weight="600" fill="${CM}">( )</text>`);
+      els.push(`<text x="${cx2}" y="${my-CR-6}" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="600" fill="${CM}">${e.bobina}</text>`);
+      els.push(`<line x1="${cx2+CR}" y1="${my}" x2="${RR+RO-10}" y2="${my}" stroke="${CI}" stroke-width="2.5"/>`);
     }
   });
-
-  return `<svg class="ladder-svg" width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg">
-    <rect width="${svgW}" height="${svgH}" fill="${BG}" rx="10"/>
-    ${els.join('\n')}
-  </svg>`;
+  return `<svg class="ladder-svg" width="${SW}" height="${SH}" viewBox="0 0 ${SW} ${SH}" xmlns="http://www.w3.org/2000/svg"><rect width="${SW}" height="${SH}" fill="${BG}" rx="10"/>${els.join('')}</svg>`;
 }
 
-/* ═══════════════════════════════════════
+/* ═════════════════════════════════════
+   COLAPSAR
+═════════════════════════════════════ */
+function toggleSeccion(id) {
+  const sec=document.getElementById(`content-${id}`);
+  const hdr=sec?sec.closest('.seccion'):null;
+  if(!sec||!hdr)return;
+  hdr.classList.toggle('collapsed');
+}
+
+/* ═════════════════════════════════════
    PANEL FLOTANTE
-═══════════════════════════════════════ */
+═════════════════════════════════════ */
 function construirPanelFlotante(entradas) {
-  const panel = document.getElementById('state-panel-float');
-  panel.innerHTML = '<span class="panel-label">Entradas</span>';
-  entradas.forEach(v => {
-    const b = document.createElement('button');
-    b.className   = 'state-btn';
-    b.id          = `sbtn-float-${v}`;
-    b.onclick     = () => toggleInput(v);
-    b.innerHTML   = `<span class="dot"></span>${v}`;
-    panel.appendChild(b);
+  const panel=document.getElementById('state-panel-float');
+  panel.innerHTML='<span class="panel-label">Entradas</span>';
+  entradas.forEach(v=>{
+    const b=document.createElement('button');
+    b.className='state-btn';b.id=`sbtn-float-${v}`;b.onclick=()=>toggleInput(v);
+    b.innerHTML=`<span class="dot"></span>${v}`;panel.appendChild(b);
   });
 }
 
 function initFloatPanel() {
-  const seccion     = document.getElementById('ladder-seccion');
-  const panelInline = document.getElementById('state-panel-inline');
-  const panelFloat  = document.getElementById('state-panel-float');
-  if (!seccion || !panelFloat || !panelInline) return;
-  function actualizar() {
-    const sr = seccion.getBoundingClientRect();
-    const ir = panelInline.getBoundingClientRect();
-    const sv = sr.bottom > 0 && sr.top < window.innerHeight;
-    const iv = ir.bottom > 80 && ir.top < window.innerHeight;
-    panelFloat.classList.toggle('visible', sv && !iv);
+  const ladder=document.getElementById('ladder-seccion')||document.querySelector('[id^="ladder-"]');
+  const panel =document.getElementById('state-panel-float');
+  if(!ladder||!panel)return;
+  function actualizar(){
+    const lr=ladder.getBoundingClientRect();
+    panel.classList.toggle('visible',lr.bottom>0&&lr.top<window.innerHeight);
   }
-  window.addEventListener('scroll', actualizar, { passive: true });
-  actualizar();
+  window.addEventListener('scroll',actualizar,{passive:true});actualizar();
 }
 
-/* ═══════════════════════════════════════
+/* ═════════════════════════════════════
    MENÚ LATERAL
-═══════════════════════════════════════ */
-function irA(id) {
-  const el = document.getElementById(id);
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+═════════════════════════════════════ */
+function irA(id){
+  const el=document.getElementById(id);
+  if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
-function initSidenav() {
-  const nav = document.getElementById('sidenav');
-  if (!nav) return;
-  nav.classList.add('visible');
-  const ids   = ['sec-analisis', 'sec-vars', 'sec-tabla', 'sec-simplificacion', 'ladder-seccion'];
-  const items = nav.querySelectorAll('.sidenav-item');
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      const idx = ids.indexOf(e.target.id);
-      if (idx !== -1) items[idx]?.classList.toggle('active', e.isIntersecting);
+function initSidenav(){
+  const nav=document.getElementById('sidenav');
+  if(!nav)return;
+  nav.innerHTML='';
+  const esCapas   = !!document.getElementById('sec-io');
+  const esModular = !esCapas && !!document.getElementById('sec-general');
+
+  if(esCapas){
+    nav.innerHTML+=navItem('sec-general','Vista general',null);
+    nav.innerHTML+=navItem('sec-io','Entradas / Salidas',null);
+    if(document.getElementById('sec-vars-int'))nav.innerHTML+=navItem('sec-vars-int','Vars internas',null);
+    nav.innerHTML+='<div class="sidenav-sep"></div>';
+    document.querySelectorAll('[id^="sec-C"]').forEach(el=>{
+      const hdr=el.querySelector('.badge-prio');
+      const lbl=el.querySelector('.seccion-header .header-left span:last-child');
+      const label=lbl?lbl.textContent.trim():el.id;
+      const color=hdr&&hdr.classList.contains('prio-1')?'var(--p1-color)':hdr&&hdr.classList.contains('prio-2')?'var(--p2-color)':hdr&&hdr.classList.contains('prio-3')?'var(--p3-color)':hdr&&hdr.classList.contains('prio-4')?'var(--p4-color)':'var(--p5-color)';
+      nav.innerHTML+=navItem(el.id,label,color);
     });
-  }, { threshold: 0.25 });
-  ids.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
+    if(document.getElementById('sec-validacion')){
+      nav.innerHTML+='<div class="sidenav-sep"></div>';
+      nav.innerHTML+=navItem('sec-validacion','Validación',null);
+    }
+  } else if(esModular){
+    nav.innerHTML+=navItem('sec-general','Vista general',null);
+    nav.innerHTML+='<div class="sidenav-sep"></div>';
+    document.querySelectorAll('[id^="sec-SS"]').forEach(el=>{
+      const hdr=el.querySelector('.badge-prio');
+      const lbl=el.querySelector('.seccion-header span[style*="font-weight:700"]');
+      const label=lbl?lbl.textContent.trim():el.id;
+      const color=hdr&&hdr.classList.contains('prio-1')?'var(--p1-color)':hdr&&hdr.classList.contains('prio-2')?'var(--p2-color)':'var(--p3-color)';
+      nav.innerHTML+=navItem(el.id,label,color);
+    });
+  } else {
+    [['sec-analisis','Análisis'],['sec-vars','Variables'],['sec-tabla','Tabla de verdad'],
+     ['sec-simplificacion','Simplificación'],['sec-validacion','Validación'],
+     ['ladder-seccion','Diagrama Ladder']].forEach(([id,lbl])=>{
+      if(document.getElementById(id))nav.innerHTML+=navItem(id,lbl,null);
+    });
+  }
+  nav.classList.add('visible');
+
+  const items=nav.querySelectorAll('.sidenav-item');
+  const ids=Array.from(items).map(d=>d.dataset.target);
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      const idx=ids.indexOf(e.target.id);
+      if(idx!==-1)items[idx]?.classList.toggle('active',e.isIntersecting);
+    });
+  },{threshold:0.15});
+  ids.forEach(id=>{const el=document.getElementById(id);if(el)obs.observe(el);});
+}
+
+function navItem(id,label,color){
+  const ds=color?`background:${color};border-color:${color}`:'';
+  return `<div class="sidenav-item" data-target="${id}" onclick="irA('${id}')"><div class="sidenav-dot" style="${ds}"></div><span class="sidenav-label">${label}</span></div>`;
 }
 </script>
 </body>

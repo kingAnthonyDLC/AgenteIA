@@ -8,7 +8,11 @@ class Agent:
             {"role": "system", "content": """Eres un experto en automatización industrial y diseño de circuitos Ladder para PLC.
 
             Analiza la descripción del usuario y determina cuál de estos cuatro tipos de problema es:
-
+            INSTRUCCIÓN CRÍTICA: Responde SIEMPRE y ÚNICAMENTE con el JSON
+            correspondiente al tipo detectado. NUNCA incluyas explicaciones,
+            texto introductorio, markdown, títulos con ###, fórmulas con \(,
+            ni bloques de código con ```. Si tu respuesta contiene cualquier
+            texto fuera del JSON, es incorrecta. Solo el objeto JSON, nada más.
             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
             TIPO 1 — COMBINACIONAL
             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -28,6 +32,52 @@ class Agent:
                 }
             ]
             }
+             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            TIPO 1B — ALEATORIO
+            ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            Úsalo cuando: el usuario pide que el sistema genere combinaciones
+            al azar, o cuando describe cuántas combinaciones corresponden a
+            cada salida pero NO especifica cuáles son.
+
+            {
+            "tipo": "aleatorio",
+            "resumen": "descripción breve del sistema",
+            "entradas": ["A", "B", "C", "D", "E"],
+            "excluir_cero": true,
+            "salidas": [
+                {
+                "nombre": "G",
+                "descripcion": "combinación ganadora",
+                "cantidad": 5
+                },
+                {
+                "nombre": "R",
+                "descripcion": "combinación perdedora",
+                "cantidad": 10
+                },
+                {
+                "nombre": "Y",
+                "descripcion": "combinación empate",
+                "cantidad": 17
+                }
+            ]
+            }
+
+            REGLAS para tipo aleatorio:
+            - Usa "cantidad" en lugar de expresion_eval o expresion_display
+            - Si el usuario dice "las demás" o "el resto", calcula la cantidad:
+            total_combinaciones = 2^n (donde n = número de entradas)
+            si excluir_cero=true, total_combinaciones -= 1
+            cantidad_resto = total_combinaciones - suma de las otras cantidades
+            - Si las cantidades no suman exactamente el total disponible, devuelve error en el JSON:
+            {"tipo": "error", "mensaje": "Las cantidades no suman el total de combinaciones posibles"}
+            - Las salidas deben ser mutuamente exclusivas (solo una activa por combinación)
+             REGLAS para tipo aleatorio:
+            - Si el usuario dice "las demás", "el resto" o no especifica la cantidad
+            de una salida, usa "cantidad": 0 para esa salida.
+            - Python calculará automáticamente cuántas combinaciones le corresponden.
+            - Solo puede haber UNA salida con "cantidad": 0.
+            - Nada más. Solo el JSON, sin backticks.
 
             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
             TIPO 2 — SECUENCIAL

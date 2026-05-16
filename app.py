@@ -753,6 +753,134 @@ def procesar_secuencial(data):
     data["resumen_timers"] = construir_resumen_temporizadores(data["temporizadores"])
     return JSONResponse(data)
 
+import random
+
+def procesar_aleatorio(data):
+    """
+    Genera una tabla de verdad aleatoria respetando las
+    cantidades por salida, luego la procesa como combinacional.
+    """
+    entradas     = data.get("entradas", [])
+    salidas_def  = data.get("salidas",  [])
+    excluir_cero = data.get("excluir_cero", True)
+    n            = len(entradas)
+
+    todas = list(itertools.product([0, 1], repeat=n))
+    if excluir_cero:
+        todas = [c for c in todas if any(v == 1 for v in c)]
+    total_disponible = len(todas)
+
+    # ── NUEVO: calcular automáticamente la salida sin cantidad ──
+    sin_cantidad = [s for s in salidas_def if not s.get("cantidad")]
+    con_cantidad = [s for s in salidas_def if s.get("cantidad")]
+
+    if len(sin_cantidad) == 1:
+        # Calcular la cantidad que falta
+        suma_conocida = sum(s["cantidad"] for s in con_cantidad)
+        restante      = total_disponible - suma_conocida
+        if restante < 0:
+            return JSONResponse({
+                "error": (f"Las cantidades conocidas ({suma_conocida}) ya superan "
+                          f"el total de combinaciones disponibles ({total_disponible}).")
+            })
+        sin_cantidad[0]["cantidad"] = restante
+
+    elif len(sin_cantidad) > 1:
+        return JSONResponse({
+            "error": "Solo puede haber una salida con cantidad no especificada (el resto)."
+        })
+
+    # Validar que ahora sí sumen correctamente
+    suma = sum(s.get("cantidad", 0) for s in salidas_def)
+    if suma != total_disponible:
+        return JSONResponse({
+            "error": (f"Las cantidades suman {suma} pero hay "
+                      f"{total_disponible} combinaciones disponibles "
+                      f"({'excluyendo' if excluir_cero else 'incluyendo'} "
+                      f"la combinación cero). Ajusta las cantidades.")
+        })
+
+    # Mezclar aleatoriamente y asignar salidas
+    combinaciones = list(todas)
+    random.shuffle(combinaciones)
+
+    tabla = []
+    idx   = 0
+    for salida in salidas_def:
+        cantidad = salida.get("cantidad", 0)
+        for combo in combinaciones[idx:idx + cantidad]:
+            fila = dict(zip(entradas, combo))
+            for s in salidas_def:
+                fila[s["nombre"]] = 1 if s["nombre"] == salida["nombre"] else 0
+            tabla.append(fila)
+        idx += cantidad
+
+    # Ordenar la tabla por valor binario para mejor lectura
+    tabla.sort(key=lambda f: sum(f[e] * (2 ** (n-1-i)) for i, e in enumerate(entradas)))
+
+    # Construir salidas en formato compatible con procesar_combinacional
+    salidas_completas = []
+    for salida in salidas_def:
+        nombre = salida["nombre"]
+        # Generar expresion_eval desde la tabla
+        minterminos_eval = []
+        minterminos_disp = []
+        for fila in tabla:
+            if fila[nombre] == 1:
+                termino_eval = " and ".join(
+                    e if fila[e] == 1 else f"not {e}"
+                    for e in entradas
+                )
+                termino_disp = "".join(
+                    e if fila[e] == 1 else f"{e}'"
+                    for e in entradas
+                )
+                minterminos_eval.append(f"({termino_eval})")
+                minterminos_disp.append(termino_disp)
+
+        expresion_eval    = " or ".join(minterminos_eval) if minterminos_eval else "False"
+        expresion_display = " + ".join(minterminos_disp)  if minterminos_disp else "0"
+
+        salidas_completas.append({
+            "nombre":           nombre,
+            "descripcion":      salida.get("descripcion", ""),
+            "expresion_display": expresion_display,
+            "expresion_eval":   expresion_eval
+        })
+
+    # Procesar como combinacional normal
+    data_combinacional = {
+        "tipo":    "combinacional",
+        "resumen": data.get("resumen", "") + " [Combinaciones generadas aleatoriamente]",
+        "entradas": entradas,
+        "salidas":  salidas_completas,
+        "tabla":    tabla,
+        "aleatorio": True
+    }
+
+    # Simplificación
+    for salida in data_combinacional["salidas"]:
+        salida["expresion_canonica"] = expresion_canonica(
+            entradas, salida["nombre"], tabla
+        )
+        # Con 5 variables → Quine-McCluskey
+        if n <= 4:
+            salida["metodo"]   = "karnaugh"
+            salida["karnaugh"] = karnaugh_grupos(
+                entradas, salida["nombre"], tabla
+            )
+            salida["expresion_simplificada"] = simplificar_con_sympy(
+                entradas, salida["nombre"], tabla
+            )
+        else:
+            salida["metodo"] = "quine"
+            qm = quine_mccluskey(entradas, salida["nombre"], tabla)
+            salida["quine_pasos"]            = qm["pasos"]
+            salida["expresion_simplificada"] = qm["expresion"]
+
+    data_combinacional["ladder"] = construir_ladder(data_combinacional["salidas"])
+
+    return JSONResponse(data_combinacional)
 
 # ═══════════════════════════════════════════════════
 # ENDPOINTS
@@ -798,7 +926,8 @@ def chat(body: Message):
 
     tipo = data.get("tipo", "")
 
-    if   tipo == "capas":         return procesar_capas(data)
+    if   tipo == "aleatorio":     return procesar_aleatorio(data)
+    elif tipo == "capas":         return procesar_capas(data)
     elif tipo == "modular":       return procesar_modular(data)
     elif tipo == "combinacional": return procesar_combinacional(data)
     elif tipo == "secuencial":    return procesar_secuencial(data)
